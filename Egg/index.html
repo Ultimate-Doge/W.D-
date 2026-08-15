@@ -1,1 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 1 - The Room</title>
+    <style>
+        /* Room styling */
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: #050505;
+            color: #ffffff;
+            font-family: monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
 
+        /* Persistent Inventory HUD in top-left */
+        #inventory-hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-size: 1.2rem;
+            pointer-events: none; /* Keeps it purely visual */
+        }
+
+        .hud-item {
+            opacity: 0.2; /* Dim by default if not collected */
+            transition: opacity 0.5s ease, transform 0.3s ease;
+        }
+
+        .hud-item.collected {
+            opacity: 1; /* Fully bright when found */
+            animation: itemGlow 2s infinite alternate;
+        }
+
+        @keyframes itemGlow {
+            0% { text-shadow: 0 0 5px #fff; }
+            100% { text-shadow: 0 0 15px #fff; }
+        }
+
+        /* The Interactive Tree Custom Layout */
+        .room-container {
+            text-align: center;
+            user-select: none;
+        }
+
+        .tree-object {
+            font-size: 7rem;
+            cursor: pointer;
+            display: inline-block;
+            transition: transform 0.1s ease;
+        }
+
+        .tree-object:hover {
+            transform: scale(1.05);
+        }
+
+        .tree-object:active {
+            transform: scale(0.95);
+        }
+
+        /* Ambient text below tree */
+        .room-text {
+            margin-top: 20px;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Inventory HUD (Stays in top-left, expandable for future items) -->
+    <div id="inventory-hud">
+        <span id="hud-egg" class="hud-item">🥚</span>
+        <!-- You can add future items here like: <span id="hud-key" class="hud-item">🔑</span> -->
+    </div>
+
+    <!-- Main Room Interaction -->
+    <div class="room-container">
+        <!-- Using a classic emoji or custom character representation for the tree -->
+        <div id="room-tree" class="tree-object">🌳</div>
+        <div class="room-text">A solitary tree stands in the quiet.</div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const treeElement = document.getElementById('room-tree');
+        const hudEgg = document.getElementById('hud-egg');
+
+        // Function to check and update inventory display
+        function updateInventoryUI() {
+            const hasEgg = localStorage.getItem('collected_egg') === 'true';
+            
+            if (hasEgg) {
+                hudEgg.classList.add('collected');
+                // Change tree appearance or remove egg availability if already taken
+                treeElement.style.cursor = 'default';
+            }
+        }
+
+        // Click event for the tree
+        treeElement.addEventListener('click', () => {
+            const alreadyHasEgg = localStorage.getItem('collected_egg') === 'true';
+
+            if (!alreadyHasEgg) {
+                // Save item state in browser memory
+                localStorage.setItem('collected_egg', 'true');
+                
+                // Animate the HUD activation instantly
+                updateInventoryUI();
+                
+                // Subtle bounce effect on collection
+                hudEgg.style.transform = 'scale(1.5)';
+                setTimeout(() => hudEgg.style.transform = 'scale(1)', 300);
+            }
+        });
+
+        // Initialize HUD when page opens
+        updateInventoryUI();
+    </script>
+
+</body>
+</html>
