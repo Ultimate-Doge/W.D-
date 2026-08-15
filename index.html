@@ -10,11 +10,13 @@
             margin: 0;
             height: 100vh;
             display: flex;
+            flex-direction: column; /* Stacks the text and input vertically */
             justify-content: center;
             align-items: center;
             background-color: #000;
             overflow: hidden;
             animation: cleanVibe 0.08s infinite linear;
+            gap: 40px; /* Creates clean breathing room between text and input */
         }
 
         @keyframes cleanVibe {
@@ -31,7 +33,7 @@
             max-width: 90vw;
             font-family: 'Wingdings', 'Webdings', sans-serif;
             font-size: 3.5rem;
-            color: #ffffff; /* Pure white */
+            color: #ffffff;
             user-select: none;
         }
 
@@ -50,17 +52,67 @@
             100% { transform: translate(1px, 1px) rotate(-0.5deg); }
         }
 
-        /* Minor delays to keep the letters moving independently but cleanly */
         .char:nth-child(2n) { animation-delay: 0.01s; animation-duration: 0.05s; }
         .char:nth-child(3n) { animation-delay: 0.02s; animation-duration: 0.07s; }
         .char:nth-child(4n) { animation-delay: 0.03s; animation-duration: 0.06s; }
+
+        /* The nearly invisible text box */
+        .stealth-input {
+            width: 300px;
+            padding: 12px 20px;
+            background-color: rgba(255, 255, 255, 0.01); /* Almost completely transparent background */
+            border: 1px solid rgba(255, 255, 255, 0.05); /* Barely visible border lines */
+            border-radius: 4px;
+            color: rgba(255, 255, 255, 0.3); /* Translucent font for typed text */
+            font-family: monospace;
+            font-size: 1rem;
+            outline: none;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        /* Changes placeholder text color to be nearly invisible */
+        .stealth-input::placeholder {
+            color: rgba(255, 255, 255, 0.08);
+            font-family: monospace;
+        }
+
+        /* Slightly reveals the text box when the user clicks/hovers over it */
+        .stealth-input:hover, 
+        .stealth-input:focus {
+            background-color: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.7);
+        }
     </style>
 </head>
 <body>
 
+    <!-- Main Shaking Wingdings Code -->
     <div class="shake-container">
         <span class="char">👎︎</span><span class="char">✌︎</span><span class="char">☼︎</span><span class="char">😐︎</span><span class="char">☜︎</span><span class="char">☼︎</span><span class="char"> </span><span class="char">✡︎</span><span class="char">☜︎</span><span class="char">❄︎</span><span class="char"> </span><span class="char">👎︎</span><span class="char">✌︎</span><span class="char">☼︎</span><span class="char">😐︎</span><span class="char">☜︎</span><span class="char">☼︎</span><span class="char"> </span><span class="char">❄︎</span><span class="char">☟︎</span><span class="char">☜︎</span><span class="char"> </span><span class="char">✞︎</span><span class="char">✋︎</span><span class="char">💧︎</span><span class="char">💡︎</span><span class="char">⚐︎</span><span class="char">☠︎</span><span class="char">💧︎</span><span class="char"> </span><span class="char">☝︎</span><span class="char">☜︎</span><span class="char">❄︎</span><span class="char"> </span><span class="char">💧︎</span><span class="char">❄︎</span><span class="char">☼︎</span><span class="char">⚐︎</span><span class="char">☠︎</span><span class="char">☝︎</span><span class="char">☜︎</span><span class="char">☼︎</span><span class="char">📪︎</span><span class="char"> </span><span class="char">☜︎</span><span class="char">✞︎</span><span class="char">☜︎</span><span class="char">☼︎</span><span class="char">✡︎</span><span class="char"> </span><span class="char">❄︎</span><span class="char">✋︎</span><span class="char">💣︎</span><span class="char">☜︎</span><span class="char"> </span><span class="char">❄︎</span><span class="char">☟︎</span><span class="char">☜︎</span><span class="char"> </span><span class="char">👎︎</span><span class="char">✌︎</span><span class="char">☼︎</span><span class="char">😐︎</span><span class="char">☠︎</span><span class="char">☜︎</span><span class="char">💧︎</span><span class="char">💧︎</span><span class="char"> </span><span class="char">👍︎</span><span class="char">🕆︎</span><span class="char">❄︎</span><span class="char">💧︎</span><span class="char"> </span><span class="char">👎︎</span><span class="char">☜︎</span><span class="char">☜︎</span><span class="char">🏱︎</span><span class="char">☜︎</span><span class="char">☼︎</span><span class="char">📬︎</span><span class="char">📬︎</span><span class="char">📬︎</span>
     </div>
 
-</body>
-</html>
+    <!-- The Stealth Input Box -->
+    <input type="text" id="secretInput" class="stealth-input" placeholder="...">
+
+    <!-- JavaScript code handling the redirection logic -->
+    <script>
+        const inputField = document.getElementById('secretInput');
+
+        inputField.addEventListener('keydown', function(event) {
+            // Checks if the user pressed the Enter key
+            if (event.key === 'Enter') {
+                // Takes what was typed, strips spaces, and makes it lowercase
+                const cleanValue = inputField.value.trim().toLowerCase();
+                
+                if (cleanValue === 'fountain') {
+                    // Redirects to your egg folder or subpage
+                    window.location.href = 'egg'; 
+                } else {
+                    // Resets the input box if they typed the wrong word
+                    inputField.value = '';
+                }
+            }
+        });
+    </script>
