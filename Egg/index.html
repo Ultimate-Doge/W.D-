@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chapter 1 - The Lone Tree</title>
+    <title>Chapter 1 - Egg Room</title>
     <style>
-        /* Sets up the background asset scene */
+        /* Sets up the background scene using your exact asset path */
         body {
             margin: 0;
             height: 100vh;
+            background-color: #050505; /* Black fallback color if image fails */
             background-image: url('Assets/Egg_Background.png');
             background-size: cover;
             background-position: center;
@@ -29,7 +30,7 @@
             left: 20px;
             display: flex;
             gap: 15px;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 10px 15px;
             border-radius: 4px;
@@ -38,17 +39,21 @@
 
         /* The inventory item thumbnail */
         .hud-item {
-            width: 30px;
-            height: 30px;
-            background-image: url('Assets/Egg_Background.png'); /* Fallback asset display */
-            background-size: contain;
-            background-repeat: no-repeat;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-image: url('Assets/Egg_Background.png'); /* Using available background asset */
+            background-size: cover;
+            background-position: center;
             opacity: 0.15; /* Dim color prior to pickup */
             transition: opacity 0.5s ease;
+            border: 1px dashed rgba(255,255,255,0.3);
         }
 
         .hud-item.collected {
             opacity: 1; /* Vibrant coloring after pickup */
+            border-style: solid;
+            box-shadow: 0 0 10px #fff;
         }
 
         /* The Interactive Canvas Area */
@@ -63,7 +68,7 @@
 
         /* Clickable central tree object */
         #game-tree {
-            width: 250px;
+            width: 280px;
             height: auto;
             cursor: pointer;
             z-index: 3;
@@ -75,22 +80,27 @@
             transform: scale(1.03);
         }
 
-        /* Hidden projectile asset waiting to break free */
+        /* Projectile asset centered behind the tree waiting to burst out */
         #spawned-egg {
             position: absolute;
-            width: 50px;
-            height: auto;
+            width: 60px;
+            height: 75px;
+            background-color: #fff; /* White fallback if image breaks */
+            background-image: url('Assets/Egg_Background.png'); 
+            background-size: cover;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; /* Creates a perfect egg geometric shape */
+            box-shadow: inset -5px -5px 15px rgba(0,0,0,0.2), 0 0 10px rgba(255,255,255,0.5);
             z-index: 2;
             opacity: 0;
             pointer-events: none;
             transform: translate(0, 0);
         }
 
-        /* Dynamic physics class for the flying animation */
+        /* Dynamic physics class for the violent flying animation */
         .egg-flying {
             opacity: 1 !important;
-            transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1), opacity 1.2s ease;
-            transform: translate(-110vw, -50px) rotate(-360deg) !important;
+            transition: transform 1.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 1.4s ease;
+            transform: translate(-120vw, -100px) rotate(-720deg) !important;
         }
 
         /* Textured Narrative TextBox asset panel at the base */
@@ -98,10 +108,12 @@
             position: absolute;
             bottom: 40px;
             width: 600px;
-            height: 120px;
+            height: 130px;
+            background-color: rgba(0,0,0,0.85); /* Fallback black box if png breaks */
             background-image: url('Assets/Text_Box.png');
             background-size: 100% 100%;
             background-repeat: no-repeat;
+            border-radius: 6px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -110,14 +122,16 @@
             z-index: 5;
             opacity: 0; /* Stays invisible until tree interaction fires */
             transition: opacity 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         #dialogue-text {
             color: #ffffff;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             text-align: center;
             width: 90%;
             letter-spacing: 1px;
+            text-shadow: 1px 1px 2px #000;
         }
     </style>
 </head>
@@ -125,14 +139,13 @@
 
     <!-- Persistent Top-Left Item Storage Unit -->
     <div id="inventory-hud">
-        <!-- Reusing a stylized variant background image asset for item representation inside indicator -->
-        <div id="hud-egg" class="hud-item" style="background-image: url('Assets/Egg_Background.png'); background-size: cover; border-radius: 50%;"></div>
+        <div id="hud-egg" class="hud-item"></div>
     </div>
 
     <div class="game-stage">
         <!-- Interactive Node Components -->
-        <img id="game-tree" src="Assets/Tree.png" alt="Mysterious Tree">
-        <img id="spawned-egg" src="Assets/Egg_Background.png" alt="Collectible Egg"> <!-- Uses base asset profile -->
+        <img id="game-tree" src="Assets/Tree.png" alt="Mysterious Tree" onerror="this.src='https://unsplash.com';">
+        <div id="spawned-egg"></div> 
     </div>
 
     <!-- Hidden Narrative Readout Subsystem -->
@@ -141,7 +154,6 @@
     </div>
 
     <!-- Core Audio Engine Context Controls -->
-    <!-- Checks your directory spelling: Is it Fgg_Sound.mp3 or Egg_Sound.mp3? Update line below manually if needed -->
     <audio id="bg-ambient" src="Assets/Fgg_Sound.mp3" loop></audio>
     <audio id="item-sfx" src="Assets/item.mp3"></audio>
 
@@ -167,6 +179,7 @@
             if (localStorage.getItem('collected_egg') === 'true') {
                 hudEgg.classList.add('collected');
                 tree.style.cursor = 'default';
+                eggItem.style.display = 'none';
             }
         }
 
@@ -178,7 +191,7 @@
             msgBox.style.opacity = '1';
             txtOutput.textContent = "Well, there is a man here.";
 
-            // Step 2: Extract physics trajectory path values for flight engine processing
+            // Step 2: Make the egg visible
             eggItem.style.opacity = '1';
             
             // Force browser flow logic sequence timing step separation points
@@ -194,10 +207,7 @@
                 
                 // Play audio clip marker directly at bounds limit escape points
                 rewardAudio.play();
-                
-                // Sweep elements out of current screen context
-                eggItem.style.display = 'none';
-            }, 1200); // Sequence runtime interval calibration matches CSS transitions
+            }, 1400); // Sequence runtime interval calibration matches CSS transitions (1.4s)
         });
 
         // Initialize state markers
