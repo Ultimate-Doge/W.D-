@@ -31,26 +31,43 @@
             color: #ffffff;
         }
 
-        /* Glitch Style 1: Yellow & Pink */
-        .pink-glitch { color: #FF1493; font-weight: bold; }
-        .yellow-glitch { color: #FFD700; font-weight: bold; }
-
-        /* Glitch Style 2: Wingdings Terminal Symbols */
-        .wingding-glitch {
-            color: #00FF00;
-            font-family: 'Arial Unicode MS', sans-serif;
-            font-weight: bold;
+        /* Essential anti-flicker alignment wrapper */
+        .glitch-wrapper {
+            display: inline-flex;
+            vertical-align: bottom;
         }
 
-        /* Glitch Style 3: Black text with glowing white border */
+        /* Forces every single glitch letter to be the exact same width so text stays still */
+        .char-slot {
+            display: inline-block;
+            width: 14px; 
+            text-align: center;
+        }
+
+        /* Color classes - upgraded to ultra bright neon palettes */
+        .pink-glitch { color: #FF69B4; font-weight: bold; text-shadow: 0 0 5px #FF69B4; }
+        .yellow-glitch { color: #FFF000; font-weight: bold; text-shadow: 0 0 5px #FFF000; }
+
+        /* Wingdings Symbol Setup with strict layout control */
+        .wingding-glitch {
+            color: #00FF00;
+            font-family: 'Arial Unicode MS', 'Segoe UI Symbol', sans-serif;
+            font-weight: bold;
+            text-shadow: 0 0 5px #00FF00;
+        }
+        .wingding-glitch .char-slot {
+            width: 20px; /* Wingdings need a slightly wider slot to prevent cropping */
+        }
+
+        /* Black text with glowing white border */
         .glow-glitch {
             color: #000000;
             font-weight: bold;
             text-shadow: 
-                -1px -1px 4px #ffffff,  
-                 1px -1px 4px #ffffff,
-                -1px  1px 4px #ffffff,
-                 1px  1px 4px #ffffff,
+                -1px -1px 3px #ffffff,  
+                 1px -1px 3px #ffffff,
+                -1px  1px 3px #ffffff,
+                 1px  1px 3px #ffffff,
                  0px  0px 8px #ffffff;
         }
 
@@ -73,13 +90,13 @@
 
     <div class="line"><span class="speaker">F.</span> What's so interesting? Is it another toy?</div>
 
-    <div class="line"><span class="speaker">G.</span> No... it's not a plaything... F<span id="pink1" class="pink-glitch"></span><span id="yellow1" class="yellow-glitch"></span>... it's something... that is very... very... powerful... and should... never be messed with...</div>
+    <div class="line"><span class="speaker">G.</span> No... it's not a plaything... F<span id="glitch-block-1" class="glitch-wrapper"></span>... it's something... that is very... very... powerful... and should... never be messed with...</div>
 
-    <div class="line"><span class="speaker">F.</span> But G<span id="wing1" class="wingding-glitch"></span> your friend... that R<span id="glowR1" class="glow-glitch"></span> K<span id="glowK1" class="glow-glitch"></span> stood a chance.</div>
+    <div class="line"><span class="speaker">F.</span> But G<span id="glitch-block-2" class="glitch-wrapper wingding-glitch"></span> your friend... that R<span id="glitch-block-3" class="glitch-wrapper glow-glitch"></span> K<span id="glitch-block-4" class="glitch-wrapper glow-glitch"></span> stood a chance.</div>
 
     <div class="line"><span class="speaker">RK.</span> I stood a chance, but at the end of it, I nearly lost. I had to use my PAWN to kill those 2 troublemakers.</div>
 
-    <div class="line"><span class="speaker">ER.</span> Don't underestimate the power of a soul, F<span id="pink2" class="pink-glitch"></span><span id="yellow2" class="yellow-glitch"></span>. I had to surrender before I died. They nearly killed the strongest one here!</div>
+    <div class="line"><span class="speaker">ER.</span> Don't underestimate the power of a soul, F<span id="glitch-block-5" class="glitch-wrapper"></span>. I had to surrender before I died. They nearly killed the strongest one here!</div>
 
     <div class="line"><span class="speaker">RK.</span> Don't go bragging you're in that stupid SWORD game. You only have your weak clones. I have an actual person to make me my FOUNTAINs.</div>
 
@@ -104,36 +121,37 @@
     const normalSymbols = "!@#$%^&*()_+~`|}{[]:;?><,./-=";
     const wingdingSymbols = "☠📁♋︎♐︎♑︎♒︎♓︎♦♣♠♥▲▼◀▶➔⚙⚛⚜⚡⚪⚫";
 
-    // Fast-updating glitch sequence loops
+    // Helper function to build rigid HTML letter slots
+    function makeSlots(symbolPool, length, className = "") {
+        let html = "";
+        for(let i = 0; i < length; i++) {
+            let randomChar = symbolPool[Math.floor(Math.random() * symbolPool.length)];
+            let fullClass = className ? `char-slot ${className}` : 'char-slot';
+            html += `<span class="${fullClass}">${randomChar}</span>`;
+        }
+        return html;
+    }
+
+    // High-speed matrix engine loop
     setInterval(() => {
-        // 1. Pink & Yellow 5-letter layout (2 pink letters, 3 yellow letters)
-        let p1 = "", y1 = "", p2 = "", y2 = "";
-        for(let i=0; i<2; i++) p1 += normalSymbols[Math.floor(Math.random() * normalSymbols.length)];
-        for(let i=0; i<3; i++) y1 += normalSymbols[Math.floor(Math.random() * normalSymbols.length)];
-        document.getElementById("pink1").innerText = p1;
-        document.getElementById("yellow1").innerText = y1;
+        // 1. F (2 Pink slots, 3 Yellow slots)
+        document.getElementById("glitch-block-1").innerHTML = 
+            makeSlots(normalSymbols, 2, "pink-glitch") + makeSlots(normalSymbols, 3, "yellow-glitch");
 
-        for(let i=0; i<2; i++) p2 += normalSymbols[Math.floor(Math.random() * normalSymbols.length)];
-        for(let i=0; i<3; i++) y2 += normalSymbols[Math.floor(Math.random() * normalSymbols.length)];
-        document.getElementById("pink2").innerText = p2;
-        document.getElementById("yellow2").innerText = y2;
+        // 2. G (5 Wingding slots)
+        document.getElementById("glitch-block-2").innerHTML = makeSlots(wingdingSymbols, 5);
 
-        // 2. Wingdings symbols (5 letters long)
-        let w1 = "";
-        for(let i=0; i<5; i++) w1 += wingdingSymbols[Math.floor(Math.random() * wingdingSymbols.length)];
-        document.getElementById("wing1").innerText = w1;
+        // 3. R (6 Glowing Border slots)
+        document.getElementById("glitch-block-3").innerHTML = makeSlots(normalSymbols, 6);
 
-        // 3. Glowing R text (6 letters long after the R)
-        let rGlow = "";
-        for(let i=0; i<6; i++) rGlow += normalSymbols[Math.floor(Math.random() * normalSymbols.length)];
-        document.getElementById("glowR1").innerText = rGlow;
+        // 4. K (5 Glowing Border slots)
+        document.getElementById("glitch-block-4").innerHTML = makeSlots(normalSymbols, 5);
 
-        // 4. Glowing K text (5 letters long after the K)
-        let kGlow = "";
-        for(let i=0; i<5; i++) kGlow += normalSymbols[Math.floor(Math.random() * normalSymbols.length)];
-        document.getElementById("glowK1").innerText = kGlow;
+        // 5. Second F (2 Pink slots, 3 Yellow slots)
+        document.getElementById("glitch-block-5").innerHTML = 
+            makeSlots(normalSymbols, 2, "pink-glitch") + makeSlots(normalSymbols, 3, "yellow-glitch");
 
-    }, 45); // Screen update frequency rate in milliseconds
+    }, 45);
 </script>
 
 </body>
