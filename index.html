@@ -5,18 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DARKER YET DARKER</title>
     <style>
-        /* A subtle, uniform rattle for the background */
         body {
             margin: 0;
             height: 100vh;
             display: flex;
-            flex-direction: column; /* Stacks the text and input vertically */
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             background-color: #000;
             overflow: hidden;
             animation: cleanVibe 0.08s infinite linear;
-            gap: 40px; /* Creates clean breathing room between text and input */
+            gap: 40px;
         }
 
         @keyframes cleanVibe {
@@ -25,7 +24,6 @@
             100% { transform: translate(1px, 1px); }
         }
 
-        /* Container for the centered pure white text */
         .shake-container {
             display: flex;
             flex-wrap: wrap;
@@ -37,7 +35,6 @@
             user-select: none;
         }
 
-        /* Light, rapid vibration for individual characters */
         .char {
             display: inline-block;
             white-space: pre;
@@ -56,14 +53,13 @@
         .char:nth-child(3n) { animation-delay: 0.02s; animation-duration: 0.07s; }
         .char:nth-child(4n) { animation-delay: 0.03s; animation-duration: 0.06s; }
 
-        /* The nearly invisible text box */
         .stealth-input {
             width: 300px;
             padding: 12px 20px;
-            background-color: rgba(255, 255, 255, 0.01); /* Almost completely transparent background */
-            border: 1px solid rgba(255, 255, 255, 0.05); /* Barely visible border lines */
+            background-color: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 4px;
-            color: rgba(255, 255, 255, 0.3); /* Translucent font for typed text */
+            color: rgba(255, 255, 255, 0.3);
             font-family: monospace;
             font-size: 1rem;
             outline: none;
@@ -71,13 +67,10 @@
             transition: all 0.3s ease;
         }
 
-        /* Changes placeholder text color to be nearly invisible */
         .stealth-input::placeholder {
             color: rgba(255, 255, 255, 0.08);
-            font-family: monospace;
         }
 
-        /* Slightly reveals the text box when the user clicks/hovers over it */
         .stealth-input:hover, 
         .stealth-input:focus {
             background-color: rgba(255, 255, 255, 0.03);
@@ -88,31 +81,33 @@
 </head>
 <body>
 
-    <!-- Main Shaking Wingdings Code -->
     <div class="shake-container">
         <span class="char">👎︎</span><span class="char">✌︎</span><span class="char">☼︎</span><span class="char">😐︎</span><span class="char">☜︎</span><span class="char">☼︎</span><span class="char"> </span><span class="char">✡︎</span><span class="char">☜︎</span><span class="char">❄︎</span><span class="char"> </span><span class="char">👎︎</span><span class="char">✌︎</span><span class="char">☼︎</span><span class="char">😐︎</span><span class="char">☜︎</span><span class="char">☼︎</span><span class="char"> </span><span class="char">❄︎</span><span class="char">☟︎</span><span class="char">☜︎</span><span class="char"> </span><span class="char">✞︎</span><span class="char">✋︎</span><span class="char">💧︎</span><span class="char">💡︎</span><span class="char">⚐︎</span><span class="char">☠︎</span><span class="char">💧︎</span><span class="char"> </span><span class="char">☝︎</span><span class="char">☜︎</span><span class="char">❄︎</span><span class="char"> </span><span class="char">💧︎</span><span class="char">❄︎</span><span class="char">☼︎</span><span class="char">⚐︎</span><span class="char">☠︎</span><span class="char">☝︎</span><span class="char">☜︎</span><span class="char">☼︎</span><span class="char">📪︎</span><span class="char"> </span><span class="char">☜︎</span><span class="char">✞︎</span><span class="char">☜︎</span><span class="char">☼︎</span><span class="char">✡︎</span><span class="char"> </span><span class="char">❄︎</span><span class="char">✋︎</span><span class="char">💣︎</span><span class="char">☜︎</span><span class="char"> </span><span class="char">❄︎</span><span class="char">☟︎</span><span class="char">☜︎</span><span class="char"> </span><span class="char">👎︎</span><span class="char">✌︎</span><span class="char">☼︎</span><span class="char">😐︎</span><span class="char">☠︎</span><span class="char">☜︎</span><span class="char">💧︎</span><span class="char">💧︎</span><span class="char"> </span><span class="char">👍︎</span><span class="char">🕆︎</span><span class="char">❄︎</span><span class="char">💧︎</span><span class="char"> </span><span class="char">👎︎</span><span class="char">☜︎</span><span class="char">☜︎</span><span class="char">🏱︎</span><span class="char">☜︎</span><span class="char">☼︎</span><span class="char">📬︎</span><span class="char">📬︎</span><span class="char">📬︎</span>
     </div>
 
-    <!-- The Stealth Input Box -->
     <input type="text" id="secretInput" class="stealth-input" placeholder="...">
 
-    <!-- JavaScript code handling the redirection logic -->
     <script>
         const inputField = document.getElementById('secretInput');
 
         inputField.addEventListener('keydown', function(event) {
-            // Checks if the user pressed the Enter key
             if (event.key === 'Enter') {
-                // Takes what was typed, strips spaces, and makes it lowercase
                 const cleanValue = inputField.value.trim().toLowerCase();
                 
                 if (cleanValue === 'fountain') {
-                    // Redirects to your egg folder or subpage
-                    window.location.href = 'Egg'; 
+                    // Redirects to your Egg room page
+                    window.location.href = 'Egg.html'; 
+                } else if (cleanValue === 'reset') {
+                    // Clears all items and memory entirely
+                    localStorage.clear();
+                    alert("Game Memory Cleared.");
+                    inputField.value = '';
                 } else {
-                    // Resets the input box if they typed the wrong word
                     inputField.value = '';
                 }
             }
         });
     </script>
+
+</body>
+</html>
