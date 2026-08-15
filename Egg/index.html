@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chapter 1 - Egg Room</title>
     <style>
+        /* Sets up your custom background asset scene */
         body {
             margin: 0;
             height: 100vh;
             background-color: #050505;
-            background-image: url('Assets/Egg_Background.png');
+            background-image: url('../Assets/Egg_Background.png'); /* Paths adjust to go out of egg folder into Assets */
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -22,6 +23,7 @@
             font-family: monospace;
         }
 
+        /* Persistent Inventory HUD in the top left corner */
         #inventory-hud {
             position: absolute;
             top: 20px;
@@ -56,6 +58,7 @@
             background-color: rgba(255,255,255,0.2);
         }
 
+        /* The Interactive Canvas Area */
         .game-stage {
             position: relative;
             width: 100vw;
@@ -65,6 +68,7 @@
             align-items: center;
         }
 
+        /* Clickable custom tree object */
         #game-tree {
             width: 280px;
             height: auto;
@@ -78,6 +82,7 @@
             display: none;
         }
 
+        /* Pure structural physical layout for the hidden spawning egg */
         #spawned-egg {
             position: absolute;
             width: 60px;
@@ -90,22 +95,22 @@
             pointer-events: none;
         }
 
+        /* SLOW FLIGHT ENGINE CONFIGURATION (Adjusted down to 4.5 seconds) */
         .egg-flying {
             opacity: 1 !important;
-            transition: transform 1.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 1.4s ease;
-            transform: translate(-120vw, -100px) rotate(-720deg) !important;
+            transition: transform 4.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 4.5s ease;
+            transform: translate(-120vw, -100px) rotate(-360deg) !important;
         }
 
+        /* Custom graphic TextBox asset panel at the base */
         .textbox-container {
             position: absolute;
             bottom: 40px;
             width: 600px;
             height: 130px;
-            background-color: rgba(0,0,0,0.85);
-            background-image: url('Assets/Text_Box.png');
+            background-image: url('../Assets/Text_Box.png'); /* Maps your Text_Box image asset */
             background-size: 100% 100%;
             background-repeat: no-repeat;
-            border-radius: 6px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -114,7 +119,6 @@
             z-index: 5;
             opacity: 0;
             transition: opacity 0.3s ease;
-            border: 1px solid rgba(255,255,255,0.1);
         }
 
         #dialogue-text {
@@ -133,16 +137,18 @@
     </div>
 
     <div class="game-stage">
-        <img id="game-tree" src="Assets/Tree.png" alt="Tree">
+        <!-- Renders your custom tree image asset directly -->
+        <img id="game-tree" src="../Assets/Tree.png" alt="Tree">
         <div id="spawned-egg"></div> 
     </div>
 
+    <!-- The custom background text box wrapper -->
     <div id="msg-box" class="textbox-container">
         <div id="dialogue-text"></div>
     </div>
 
-    <audio id="bg-ambient" src="Assets/Fgg_Sound.mp3" loop></audio>
-    <audio id="item-sfx" src="Assets/item.mp3"></audio>
+    <audio id="bg-ambient" src="../Assets/Fgg_Sound.mp3" loop></audio>
+    <audio id="item-sfx" src="../Assets/item.mp3"></audio>
 
     <script>
         const tree = document.getElementById('game-tree');
@@ -163,11 +169,11 @@
         function verifyInventoryStatus() {
             if (localStorage.getItem('collected_egg') === 'true') {
                 hudEgg.classList.add('collected');
-                tree.classList.add('hidden'); // Fully hides tree if item was found
+                tree.classList.add('hidden');
                 eggItem.style.display = 'none';
             } else {
                 hudEgg.classList.remove('collected');
-                tree.classList.remove('hidden'); // Makes tree visible if reset
+                tree.classList.remove('hidden');
                 eggItem.style.display = 'block';
                 eggItem.classList.remove('egg-flying');
                 eggItem.style.opacity = '0';
@@ -178,19 +184,24 @@
         tree.addEventListener('click', () => {
             if (localStorage.getItem('collected_egg') === 'true') return;
 
+            // Phase 1: Custom Text Box appears and displays the line instantly
             msgBox.style.opacity = '1';
             txtOutput.textContent = "Well, there is a man here.";
+
+            // Phase 2: Show the egg stationary in the center behind the tree
             eggItem.style.opacity = '1';
             
+            // Phase 3: Wait 1 second (1000ms delay) before letting it drift slowly off screen
             setTimeout(() => {
                 eggItem.classList.add('egg-flying');
-            }, 50);
+            }, 1000);
 
+            // Phase 4: Wait out the full 4.5-second animation delay before playing pickup audio
             setTimeout(() => {
                 localStorage.setItem('collected_egg', 'true');
                 verifyInventoryStatus();
                 rewardAudio.play();
-            }, 1400);
+            }, 5500); // 1000ms delay + 4500ms slide runtime = 5500ms total sequence block
         });
 
         verifyInventoryStatus();
