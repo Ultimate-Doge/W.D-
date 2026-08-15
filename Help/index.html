@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Transcript</title>
+    <style>
+        /* Pure black background, hiding GitHub UI elements */
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 40px;
+            margin: 0;
+            line-height: 1.8;
+            font-size: 20px;
+        }
+
+        .dialogue-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .line {
+            margin-bottom: 25px;
+            white-space: pre-wrap;
+        }
+
+        .speaker {
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        /* Glitch Style 1: Yellow & Pink */
+        .pink-glitch { color: #FF1493; font-weight: bold; }
+        .yellow-glitch { color: #FFD700; font-weight: bold; }
+
+        /* Glitch Style 2: Wingdings Terminal Symbols */
+        .wingding-glitch {
+            color: #00FF00;
+            font-family: 'Arial Unicode MS', sans-serif;
+            font-weight: bold;
+        }
+
+        /* Glitch Style 3: Black text with glowing white border */
+        .glow-glitch {
+            color: #000000;
+            font-weight: bold;
+            text-shadow: 
+                -1px -1px 4px #ffffff,  
+                 1px -1px 4px #ffffff,
+                -1px  1px 4px #ffffff,
+                 1px  1px 4px #ffffff,
+                 0px  0px 8px #ffffff;
+        }
+
+        .system-tape {
+            color: #888888;
+            font-style: italic;
+            margin-top: 40px;
+            border-top: 1px dashed #444444;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="dialogue-container">
+
+    <div class="line"><span class="speaker">G.</span> This soul... it's... different... so very... different...</div>
+
+    <div class="line"><span class="speaker">G.</span> It's very... very... interesting.</div>
+
+    <div class="line"><span class="speaker">F.</span> What's so interesting? Is it another toy?</div>
+
+    <div class="line"><span class="speaker">G.</span> No... it's not a plaything... F<span id="pink1" class="pink-glitch"></span><span id="yellow1" class="yellow-glitch"></span>... it's something... that is very... very... powerful... and should... never be messed with...</div>
+
+    <div class="line"><span class="speaker">F.</span> But G<span id="wing1" class="wingding-glitch"></span> your friend... that R<span id="glowR1" class="glow-glitch"></span> K<span id="glowK1" class="glow-glitch"></span> stood a chance.</div>
+
+    <div class="line"><span class="speaker">RK.</span> I stood a chance, but at the end of it, I nearly lost. I had to use my PAWN to kill those 2 troublemakers.</div>
+
+    <div class="line"><span class="speaker">ER.</span> Don't underestimate the power of a soul, F<span id="pink2" class="pink-glitch"></span><span id="yellow2" class="yellow-glitch"></span>. I had to surrender before I died. They nearly killed the strongest one here!</div>
+
+    <div class="line"><span class="speaker">RK.</span> Don't go bragging you're in that stupid SWORD game. You only have your weak clones. I have an actual person to make me my FOUNTAINs.</div>
+
+    <div class="line"><span class="speaker">G.</span> Stop fighting. I have some very... very... strange news... It appears things have taken a WEIRD route.</div>
+
+    <div class="line"><span class="speaker">RK.</span> ?</div>
+    <div class="line"><span class="speaker">ER.</span> ?</div>
+    <div class="line"><span class="speaker">F.</span> ?</div>
+
+    <div class="line"><span class="speaker">G.</span> Those two have sunken to the deepest of the Earth—the depth of its Core.</div>
+
+    <div class="line"><span class="speaker">F.</span> ! (It lunges onto RK while laughing visibly excited) I can finally play with it!</div>
+
+    <div class="line"><span class="speaker">RK.</span> Get off me, you weird CAT creature!</div>
+
+    <div class="system-tape">(The Video Tape Has Stopped Playing)</div>
+
+</div>
+
+<script>
+    // Character pools for the glitch matrix generators
+    const normalSymbols = "!@#$%^&*()_+~`|}{[]:;?><,./-=";
+    const wingdingSymbols = "☠📁♋︎♐︎♑︎♒︎♓︎♦♣♠♥▲▼◀▶➔⚙⚛⚜⚡⚪⚫";
+
+    // Fast-updating glitch sequence loops
+    setInterval(() => {
+        // 1. Pink & Yellow 5-letter layout (2 pink letters, 3 yellow letters)
+        let p1 = "", y1 = "", p2 = "", y2 = "";
+        for(let i=0; i<2; i++) p1 += normalSymbols[Math.floor(Math.random() * normalSymbols.length)];
+        for(let i=0; i<3; i++) y1 += normalSymbols[Math.floor(Math.random() * normalSymbols.length)];
+        document.getElementById("pink1").innerText = p1;
+        document.getElementById("yellow1").innerText = y1;
+
+        for(let i=0; i<2; i++) p2 += normalSymbols[Math.floor(Math.random() * normalSymbols.length)];
+        for(let i=0; i<3; i++) y2 += normalSymbols[Math.floor(Math.random() * normalSymbols.length)];
+        document.getElementById("pink2").innerText = p2;
+        document.getElementById("yellow2").innerText = y2;
+
+        // 2. Wingdings symbols (5 letters long)
+        let w1 = "";
+        for(let i=0; i<5; i++) w1 += wingdingSymbols[Math.floor(Math.random() * wingdingSymbols.length)];
+        document.getElementById("wing1").innerText = w1;
+
+        // 3. Glowing R text (6 letters long after the R)
+        let rGlow = "";
+        for(let i=0; i<6; i++) rGlow += normalSymbols[Math.floor(Math.random() * normalSymbols.length)];
+        document.getElementById("glowR1").innerText = rGlow;
+
+        // 4. Glowing K text (5 letters long after the K)
+        let kGlow = "";
+        for(let i=0; i<5; i++) kGlow += normalSymbols[Math.floor(Math.random() * normalSymbols.length)];
+        document.getElementById("glowK1").innerText = kGlow;
+
+    }, 45); // Screen update frequency rate in milliseconds
+</script>
+
+</body>
+</html>
