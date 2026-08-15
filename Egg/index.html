@@ -3,132 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chapter 1 - The Room</title>
+    <title>Chapter 1 - Egg Room</title>
     <style>
-        /* Room styling */
+        /* Sets up the background asset scene */
         body {
             margin: 0;
             height: 100vh;
-            background-color: #050505;
-            color: #ffffff;
-            font-family: monospace;
+            background-image: url('Assets/Egg_Background.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             overflow: hidden;
             position: relative;
+            font-family: monospace;
         }
 
-        /* Persistent Inventory HUD in top-left */
+        /* Persistent Inventory HUD in the top left corner */
         #inventory-hud {
             position: absolute;
             top: 20px;
             left: 20px;
             display: flex;
             gap: 15px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 10px 15px;
             border-radius: 4px;
-            font-size: 1.2rem;
-            pointer-events: none; /* Keeps it purely visual */
+            z-index: 10;
         }
 
+        /* The inventory item thumbnail */
         .hud-item {
-            opacity: 0.2; /* Dim by default if not collected */
-            transition: opacity 0.5s ease, transform 0.3s ease;
+            width: 30px;
+            height: 30px;
+            background-image: url('Assets/Egg_Background.png'); /* Fallback asset display */
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0.15; /* Dim color prior to pickup */
+            transition: opacity 0.5s ease;
         }
 
         .hud-item.collected {
-            opacity: 1; /* Fully bright when found */
-            animation: itemGlow 2s infinite alternate;
+            opacity: 1; /* Vibrant coloring after pickup */
         }
 
-        @keyframes itemGlow {
-            0% { text-shadow: 0 0 5px #fff; }
-            100% { text-shadow: 0 0 15px #fff; }
+        /* The Interactive Canvas Area */
+        .game-stage {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        /* The Interactive Tree Custom Layout */
-        .room-container {
-            text-align: center;
-            user-select: none;
-        }
-
-        .tree-object {
-            font-size: 7rem;
+        /* Clickable central tree object */
+        #game-tree {
+            width: 250px;
+            height: auto;
             cursor: pointer;
-            display: inline-block;
+            z-index: 3;
+            user-select: none;
             transition: transform 0.1s ease;
         }
 
-        .tree-object:hover {
-            transform: scale(1.05);
+        #game-tree:hover {
+            transform: scale(1.03);
         }
 
-        .tree-object:active {
-            transform: scale(0.95);
+        /* Hidden projectile asset waiting to break free */
+        #spawned-egg {
+            position: absolute;
+            width: 50px;
+            height: auto;
+            z-index: 2;
+            opacity: 0;
+            pointer-events: none;
+            transform: translate(0, 0);
         }
 
-        /* Ambient text below tree */
-        .room-text {
-            margin-top: 20px;
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.4);
-            letter-spacing: 2px;
+        /* Dynamic physics class for the flying animation */
+        .egg-flying {
+            opacity: 1 !important;
+            transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1), opacity 1.2s ease;
+            transform: translate(-110vw, -50px) rotate(-360deg) !important;
+        }
+
+        /* Textured Narrative TextBox asset panel at the base */
+        .textbox-container {
+            position: absolute;
+            bottom: 40px;
+            width: 600px;
+            height: 120px;
+            background-image: url('Assets/Text_Box.png');
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 5;
+            opacity: 0; /* Stays invisible until tree interaction fires */
+            transition: opacity 0.3s ease;
+        }
+
+        #dialogue-text {
+            color: #ffffff;
+            font-size: 1.2rem;
+            text-align: center;
+            width: 90%;
+            letter-spacing: 1px;
         }
     </style>
 </head>
 <body>
 
-    <!-- Inventory HUD (Stays in top-left, expandable for future items) -->
+    <!-- Persistent Top-Left Item Storage Unit -->
     <div id="inventory-hud">
-        <span id="hud-egg" class="hud-item">🥚</span>
-        <!-- You can add future items here like: <span id="hud-key" class="hud-item">🔑</span> -->
+        <!-- Reusing a stylized variant background image asset for item representation inside indicator -->
+        <div id="hud-egg" class="hud-item" style="background-image: url('Assets/Egg_Background.png'); background-size: cover; border-radius: 50%;"></div>
     </div>
 
-    <!-- Main Room Interaction -->
-    <div class="room-container">
-        <!-- Using a classic emoji or custom character representation for the tree -->
-        <div id="room-tree" class="tree-object">🌳</div>
-        <div class="room-text">A solitary tree stands in the quiet.</div>
+    <div class="game-stage">
+        <!-- Interactive Node Components -->
+        <img id="game-tree" src="Assets/Tree.png" alt="Mysterious Tree">
+        <img id="spawned-egg" src="Assets/Egg_Background.png" alt="Collectible Egg"> <!-- Uses base asset profile -->
     </div>
+
+    <!-- Hidden Narrative Readout Subsystem -->
+    <div id="msg-box" class="textbox-container">
+        <div id="dialogue-text"></div>
+    </div>
+
+    <!-- Core Audio Engine Context Controls -->
+    <!-- Checks your directory spelling: Is it Fgg_Sound.mp3 or Egg_Sound.mp3? Update line below manually if needed -->
+    <audio id="bg-ambient" src="Assets/Fgg_Sound.mp3" loop></audio>
+    <audio id="item-sfx" src="Assets/item.mp3"></audio>
 
     <script>
-        // DOM Elements
-        const treeElement = document.getElementById('room-tree');
+        const tree = document.getElementById('game-tree');
+        const eggItem = document.getElementById('spawned-egg');
+        const msgBox = document.getElementById('msg-box');
+        const txtOutput = document.getElementById('dialogue-text');
         const hudEgg = document.getElementById('hud-egg');
+        
+        const ambientAudio = document.getElementById('bg-ambient');
+        const rewardAudio = document.getElementById('item-sfx');
 
-        // Function to check and update inventory display
-        function updateInventoryUI() {
-            const hasEgg = localStorage.getItem('collected_egg') === 'true';
-            
-            if (hasEgg) {
+        // Audio activation trigger upon tracking movement clicks inside interface
+        document.body.addEventListener('click', () => {
+            if (ambientAudio.paused) {
+                ambientAudio.play().catch(err => console.log("Audio waiting for user gesture..."));
+            }
+        }, { once: true });
+
+        // Evaluates item verification properties using active localStorage values
+        function verifyInventoryStatus() {
+            if (localStorage.getItem('collected_egg') === 'true') {
                 hudEgg.classList.add('collected');
-                // Change tree appearance or remove egg availability if already taken
-                treeElement.style.cursor = 'default';
+                tree.style.cursor = 'default';
             }
         }
 
-        // Click event for the tree
-        treeElement.addEventListener('click', () => {
-            const alreadyHasEgg = localStorage.getItem('collected_egg') === 'true';
+        // Script behavior for active node clicking routines
+        tree.addEventListener('click', () => {
+            if (localStorage.getItem('collected_egg') === 'true') return;
 
-            if (!alreadyHasEgg) {
-                // Save item state in browser memory
+            // Step 1: Render dialogue string layout values inside UI block
+            msgBox.style.opacity = '1';
+            txtOutput.textContent = "Well, there is a man here.";
+
+            // Step 2: Extract physics trajectory path values for flight engine processing
+            eggItem.style.opacity = '1';
+            
+            // Force browser flow logic sequence timing step separation points
+            setTimeout(() => {
+                eggItem.classList.add('egg-flying');
+            }, 50);
+
+            // Step 3: Track termination timeline point location markers down axis limits
+            setTimeout(() => {
+                // Update persistent data entries
                 localStorage.setItem('collected_egg', 'true');
+                verifyInventoryStatus();
                 
-                // Animate the HUD activation instantly
-                updateInventoryUI();
+                // Play audio clip marker directly at bounds limit escape points
+                rewardAudio.play();
                 
-                // Subtle bounce effect on collection
-                hudEgg.style.transform = 'scale(1.5)';
-                setTimeout(() => hudEgg.style.transform = 'scale(1)', 300);
-            }
+                // Sweep elements out of current screen context
+                eggItem.style.display = 'none';
+            }, 1200); // Sequence runtime interval calibration matches CSS transitions
         });
 
-        // Initialize HUD when page opens
-        updateInventoryUI();
+        // Initialize state markers
+        verifyInventoryStatus();
     </script>
 
 </body>
