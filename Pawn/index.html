@@ -33,62 +33,53 @@
             max-height: 120px; 
             image-rendering: pixelated; /* Keeps pixel art completely crisp */
             cursor: pointer;
-            transition: filter 0.05s ease;
         }
 
-        /* STAGE 1: Low-framerate pixel tremors + rhythmic, heartbeat crimson silhouette flashes */
+        /* STAGE 1: Steady, rhythmic red flashes that shake Kris on every single beat */
         .dr-tremor-slow {
-            animation: 
-                retroJitterSlow 0.06s infinite steps(2), 
-                deltaruneCenterRedFlash 0.30s infinite steps(1);
+            animation: deltaruneSynchronizedSlow 0.3s infinite steps(1);
         }
 
-        /* STAGE 2: Eerie resting frame. Shaking completely drops, but the red energy hum remains locked over Kris */
+        /* STAGE 2: The eerie pause. Shaking stops completely, but a resting red aura holds over them */
         .dr-pause-glow {
-            animation: staticCenterRedGlow 0.1s infinite steps(1);
+            filter: drop-shadow(0 0 15px #ff0000) sepia(1) saturate(5) brightness(0.6);
         }
 
-        /* STAGE 3: Violent structural vibration + erratic, blinding crimson warning flashes */
+        /* STAGE 3: Violent, ultra-rapid frantic vibration synced to blinding crimson flashes */
         .dr-tremor-rapid {
-            animation: 
-                retroJitterRapid 0.03s infinite steps(1), 
-                frenzyCenterRedFlash 0.08s infinite steps(1);
-        }
-
-        /* RETRO JITTER (Sharp coordinate snapping strictly on the horizontal X-axis) */
-        @keyframes retroJitterSlow {
-            0% { transform: translate(-3px, 0); }
-            50% { transform: translate(3px, 0); }
-            100% { transform: translate(-2px, 0); }
-        }
-
-        @keyframes retroJitterRapid {
-            0% { transform: translate(-6px, 0); }
-            25% { transform: translate(5px, 0); }
-            50% { transform: translate(-4px, 0); }
-            75% { transform: translate(6px, 0); }
-            100% { transform: translate(-5px, 0); }
+            animation: deltaruneSynchronizedRapid 0.06s infinite steps(1);
         }
 
         /* 
-          DELTARUNE OVERLAY MATH:
-          By using 'sepia(1) saturate(15) hue-rotate(-50deg)', we force the entire 
-          image center—including clothes, face, and skin—to instantly re-color into a sharp, 
-          glowing crimson silhouette, bypassing the standard drop-shadow padding completely.
+          PURE RED SYNCHRONIZATION MATH:
+          By using 'sepia(1) saturate(10) hue-rotate(0deg)' instead of negative values, 
+          the sprite turns completely crimson red with NO yellow tints.
+          The translate X axis only shifts when the red filter kicks in!
         */
-        @keyframes deltaruneCenterRedFlash {
-            0%, 50% { filter: none; }
-            51%, 80% { filter: drop-shadow(0 0 15px #ff0000) sepia(1) saturate(20) hue-rotate(-50deg) brightness(0.9); }
-            81%, 100% { filter: none; }
+        @keyframes deltaruneSynchronizedSlow {
+            /* Frame A: Normal texture, centered */
+            0%, 49% { 
+                transform: translateX(0); 
+                filter: none; 
+            }
+            /* Frame B: Crimson Red overlay, shakes 5px to the left */
+            50%, 100% { 
+                transform: translateX(-5px); 
+                filter: drop-shadow(0 0 15px #ff0000) sepia(1) saturate(20) brightness(0.8); 
+            }
         }
 
-        @keyframes staticCenterRedGlow {
-            0%, 100% { filter: drop-shadow(0 0 20px #ff0000) sepia(1) saturate(15) hue-rotate(-50deg) brightness(0.7); }
-        }
-
-        @keyframes frenzyCenterRedFlash {
-            0%, 100% { filter: drop-shadow(0 0 35px #ff0000) sepia(1) saturate(25) hue-rotate(-50deg) brightness(1.2); }
-            50% { filter: none; }
+        @keyframes deltaruneSynchronizedRapid {
+            /* Frame A: Crimson Red overlay, shakes 8px to the right */
+            0%, 49% { 
+                transform: translateX(8px); 
+                filter: drop-shadow(0 0 25px #ff0000) sepia(1) saturate(25) brightness(1.2); 
+            }
+            /* Frame B: Normal texture, shakes 8px to the left */
+            50%, 100% { 
+                transform: translateX(-8px); 
+                filter: none; 
+            }
         }
 
         /* Soul Rings Configurations */
@@ -123,7 +114,7 @@
     </div>
 
     <script>
-        // Folder depth path engine
+        // Folder depth path engine for GitHub pages
         const pathSegments = window.location.pathname.split('/').filter(s => s.length > 0);
         let repoBasePath = window.location.origin + '/';
         if (pathSegments.length > 1) {
@@ -167,28 +158,28 @@
             container.appendChild(ringElement);
         });
 
-        // --- AUTHENTIC TIMELINE CHOREOGRAPHY ENGINE ---
+        // --- THE 3-STAGE CHOREOGRAPHY TIMELINE ---
         let isPlayingSequence = false;
 
         playerElement.addEventListener('click', () => {
             if (isPlayingSequence) return;
             isPlayingSequence = true;
 
-            // Stage 1: Sharp pixel tremors + center-covering red flashes (1.0 Second)
+            // Stage 1: Synced red flashes and low-framerate ticks (1.0 Second)
             playerElement.classList.add('dr-tremor-slow');
 
             setTimeout(() => {
-                // Stage 2: Shaking pauses, keeping the deep red energy over the center of the image (0.5 Seconds)
+                // Stage 2: Shaking stops, holding a clean crimson shade over the center (0.5 Seconds)
                 playerElement.classList.remove('dr-tremor-slow');
                 playerElement.classList.add('dr-pause-glow');
                 
                 setTimeout(() => {
-                    // Stage 3: High-frequency jitter + erratic crimson flashes across the whole sprite texture (0.5 Seconds)
+                    // Stage 3: Extreme vibration linked entirely to ultra-rapid flashes (0.5 Seconds)
                     playerElement.classList.remove('dr-pause-glow');
                     playerElement.classList.add('dr-tremor-rapid');
 
                     setTimeout(() => {
-                        // Finale: Clear out flash styles and drop to Down state pose instantly
+                        // Finale: Remove filter animations and drop to the Kris_Down image instantly
                         playerElement.classList.remove('dr-tremor-rapid');
                         playerElement.src = krisDownUrl; 
 
