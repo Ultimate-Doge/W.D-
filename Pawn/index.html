@@ -38,15 +38,14 @@
         /* Base Player Image */
         .player-sprite {
             height: 100%;
-            image-rendering: pixelated;
+            image-rendering: pixelated; /* Keeps pixel art completely crisp */
             display: block;
         }
 
         /* 
            THE DUAL-LAYER RED ENGINE:
-           Instead of filter calculations, this stacks a perfect duplicate clip over Kris.
-           Using webkit-mask forces it to match the exact shape of your character art,
-           and background-color guarantees it is PURE CRIMSON RED with no yellow tints possible!
+           Stacks a perfect duplicate clip over Kris using pure crimson background masks 
+           so that yellow flashes are structurally impossible.
         */
         .red-flash-overlay {
             position: absolute;
@@ -54,7 +53,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #ff0000; /* Crisp pure crimson */
+            background-color: #ff0000; /* Pure crimson */
             -webkit-mask-size: contain;
             mask-size: contain;
             -webkit-mask-repeat: no-repeat;
@@ -63,7 +62,6 @@
             mask-position: center;
             opacity: 0; /* Hidden by default */
             pointer-events: none;
-            /* Creates a clean outer soul extraction aura glow behind the red shape */
             filter: drop-shadow(0 0 15px #ff0000); 
         }
 
@@ -131,7 +129,6 @@
 <body>
 
     <div id="scene-container">
-        <!-- Interactive Multi-layer Player Cluster -->
         <div id="player-container" class="player-wrapper">
             <img id="player-img" alt="Kris" class="player-sprite">
             <div id="flash-overlay" class="red-flash-overlay"></div>
@@ -139,11 +136,13 @@
     </div>
 
     <script>
-        // Resolve dynamic path configurations for subfolders automatically
+        // FIXED PATH ENGINE: Safely extracts the repository name to map files perfectly
         const pathSegments = window.location.pathname.split('/').filter(s => s.length > 0);
         let repoBasePath = window.location.origin + '/';
-        if (pathSegments.length > 1) {
-            repoBasePath += pathSegments + '/';
+        
+        // Handles subfolders cleanly by slicing just the repository name
+        if (pathSegments.length > 0) {
+            repoBasePath += pathSegments[0] + '/';
         }
 
         const krisIdleUrl = repoBasePath + 'Assets/Kris_Idle.png';
@@ -154,10 +153,8 @@
         const overlayElement = document.getElementById('flash-overlay');
         const containerElement = document.getElementById('player-container');
 
-        // Apply primary source asset
+        // Apply assets cleanly
         playerElement.src = krisIdleUrl;
-        
-        // Link the mask shape layer directly to your Kris image structure
         overlayElement.style.webkitMaskImage = `url('${krisIdleUrl}')`;
         overlayElement.style.maskImage = `url('${krisIdleUrl}')`;
 
@@ -191,39 +188,36 @@
             container.appendChild(ringElement);
         });
 
-        // --- SYNCHRONIZED CHOREOGRAPHY ENGINE ---
+        // --- SYNCHRONIZED CHOREOGRAPHY TIMELINE ---
         let isPlayingSequence = false;
 
         containerElement.addEventListener('click', () => {
             if (isPlayingSequence) return;
             isPlayingSequence = true;
 
-            // Stage 1: Active low-frequency frame shaking linked directly to crimson silhouette visibility (1.0 Second)
+            // Stage 1: Shaking happens exactly on the red stencil flash frames (1.0 Second)
             containerElement.classList.add('shake-slow-sync');
             overlayElement.classList.add('flash-slow-sync');
 
             setTimeout(() => {
-                // Stage 2: Stop shaking, hold a flat, steady pure crimson glow mask layer over Kris (0.5 Seconds)
+                // Stage 2: Freeze shake completely, resting in a stable 70% opacity red filter tint (0.5 Seconds)
                 containerElement.classList.remove('shake-slow-sync');
                 overlayElement.classList.remove('flash-slow-sync');
-                overlayElement.style.opacity = "0.7"; // Solid resting red tint overlay
+                overlayElement.style.opacity = "0.7"; 
 
                 setTimeout(() => {
-                    // Stage 3: Extreme high-frequency vibration tied completely to hyper-flashes (0.5 Seconds)
-                    overlayElement.style.opacity = ""; // Clear manual block
+                    // Stage 3: Extreme high-frequency vibration tied completely to fast mask flashes (0.5 Seconds)
+                    overlayElement.style.opacity = ""; 
                     containerElement.classList.add('shake-rapid-sync');
                     overlayElement.classList.add('flash-rapid-sync');
 
                     setTimeout(() => {
-                        // Finale: Drop all active animation flags and snap immediately into the down position image state
+                        // Finale: Drop all active animation tags and snap instantly into Kris_Down
                         containerElement.classList.remove('shake-rapid-sync');
                         overlayElement.classList.remove('flash-rapid-sync');
                         
-                        // Switch base view to fallen over character state
                         playerElement.src = krisDownUrl;
-                        
-                        // Turn off masks so the fallen character art reads normally
-                        overlayElement.style.display = "none"; 
+                        overlayElement.style.display = "none"; // Hide mask layer entirely
 
                     }, 500); // Stage 3 Duration
 
