@@ -136,11 +136,11 @@
     </div>
 
     <script>
-        // FIXED PATH ENGINE: Safely extracts the repository name to map files perfectly
+        // FIXED PATH ENGINE: Targets the exact repository name safely
         const pathSegments = window.location.pathname.split('/').filter(s => s.length > 0);
         let repoBasePath = window.location.origin + '/';
         
-        // Handles subfolders cleanly by slicing just the repository name
+        // Grab only the first folder segment (the repository folder name)
         if (pathSegments.length > 0) {
             repoBasePath += pathSegments[0] + '/';
         }
