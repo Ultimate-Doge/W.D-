@@ -33,28 +33,29 @@
             max-height: 120px; 
             image-rendering: pixelated; /* Keeps pixel art completely crisp */
             cursor: pointer;
+            transition: filter 0.05s ease;
         }
 
-        /* STAGE 1: Heavy, low-framerate retro tremors + rhythmic heartbeat red flashes */
+        /* STAGE 1: Low-framerate pixel tremors + rhythmic, heartbeat crimson silhouette flashes */
         .dr-tremor-slow {
             animation: 
                 retroJitterSlow 0.06s infinite steps(2), 
-                heartbeatRedFlash 0.3s infinite steps(1);
+                deltaruneCenterRedFlash 0.30s infinite steps(1);
         }
 
-        /* STAGE 2: The eerie pause. Shaking stops completely, but the red color remains unstable */
+        /* STAGE 2: Eerie resting frame. Shaking completely drops, but the red energy hum remains locked over Kris */
         .dr-pause-glow {
-            animation: staticRedGlow 0.15s infinite alternate ease-in-out;
+            animation: staticCenterRedGlow 0.1s infinite steps(1);
         }
 
-        /* STAGE 3: Violent, ultra-fast structural vibration + erratic crimson warning flashes */
+        /* STAGE 3: Violent structural vibration + erratic, blinding crimson warning flashes */
         .dr-tremor-rapid {
             animation: 
                 retroJitterRapid 0.03s infinite steps(1), 
-                frenzyRedFlash 0.08s infinite steps(1);
+                frenzyCenterRedFlash 0.08s infinite steps(1);
         }
 
-        /* RETRO JITTER (Sharp, hard coordinate snapping instead of smooth sliding) */
+        /* RETRO JITTER (Sharp coordinate snapping strictly on the horizontal X-axis) */
         @keyframes retroJitterSlow {
             0% { transform: translate(-3px, 0); }
             50% { transform: translate(3px, 0); }
@@ -69,22 +70,25 @@
             100% { transform: translate(-5px, 0); }
         }
 
-        /* CRIMSON EXTRACTION ENERGY FLASHES (Turns sprite into a stark, neon red shadow silhouette) */
-        @keyframes heartbeatRedFlash {
-            0%, 40% { filter: none; }
-            50%, 70% { filter: brightness(0) invert(1) sepia(1) saturate(10000%) hue-rotate(0deg); }
-            80%, 100% { filter: none; }
+        /* 
+          DELTARUNE OVERLAY MATH:
+          By using 'sepia(1) saturate(15) hue-rotate(-50deg)', we force the entire 
+          image center—including clothes, face, and skin—to instantly re-color into a sharp, 
+          glowing crimson silhouette, bypassing the standard drop-shadow padding completely.
+        */
+        @keyframes deltaruneCenterRedFlash {
+            0%, 50% { filter: none; }
+            51%, 80% { filter: drop-shadow(0 0 15px #ff0000) sepia(1) saturate(20) hue-rotate(-50deg) brightness(0.9); }
+            81%, 100% { filter: none; }
         }
 
-        @keyframes staticRedGlow {
-            0% { filter: drop-shadow(0 0 4px #ff0000) brightness(1) sepia(0.5) hue-rotate(-45deg); }
-            100% { filter: drop-shadow(0 0 25px #ff0000) brightness(0.6) sepia(1) saturate(15) hue-rotate(-50deg); }
+        @keyframes staticCenterRedGlow {
+            0%, 100% { filter: drop-shadow(0 0 20px #ff0000) sepia(1) saturate(15) hue-rotate(-50deg) brightness(0.7); }
         }
 
-        @keyframes frenzyRedFlash {
-            0% { filter: brightness(0) invert(1) sepia(1) saturate(10000%) hue-rotate(0deg); }
-            50% { filter: drop-shadow(0 0 35px #ff0000) brightness(0.4) sepia(1) saturate(20); }
-            100% { filter: none; }
+        @keyframes frenzyCenterRedFlash {
+            0%, 100% { filter: drop-shadow(0 0 35px #ff0000) sepia(1) saturate(25) hue-rotate(-50deg) brightness(1.2); }
+            50% { filter: none; }
         }
 
         /* Soul Rings Configurations */
@@ -119,11 +123,11 @@
     </div>
 
     <script>
-        // Folder depth path calculation logic
+        // Folder depth path engine
         const pathSegments = window.location.pathname.split('/').filter(s => s.length > 0);
         let repoBasePath = window.location.origin + '/';
         if (pathSegments.length > 1) {
-            repoBasePath += pathSegments[0] + '/';
+            repoBasePath += pathSegments + '/';
         }
 
         const krisIdleUrl = repoBasePath + 'Assets/Kris_Idle.png';
@@ -133,7 +137,7 @@
         const playerElement = document.getElementById('player-img');
         playerElement.src = krisIdleUrl;
 
-        // Populate Spinning Soul Rings (Maintains rotation through cutscene)
+        // Populate Spinning Soul Matrix
         const container = document.getElementById('scene-container');
         const ringSettings = [
             { radius: 130, count: 12 }, 
@@ -170,21 +174,21 @@
             if (isPlayingSequence) return;
             isPlayingSequence = true;
 
-            // Stage 1: Sharp pixel tremors + rhythmic heartbeat red flashes (1.0 Second)
+            // Stage 1: Sharp pixel tremors + center-covering red flashes (1.0 Second)
             playerElement.classList.add('dr-tremor-slow');
 
             setTimeout(() => {
-                // Stage 2: Sharp jitter pauses instantly, leaving an unstable red energy hum (0.5 Seconds)
+                // Stage 2: Shaking pauses, keeping the deep red energy over the center of the image (0.5 Seconds)
                 playerElement.classList.remove('dr-tremor-slow');
                 playerElement.classList.add('dr-pause-glow');
                 
                 setTimeout(() => {
-                    // Stage 3: Extreme, chaotic horizontal pixel vibration + frantic flickering silhouette (0.5 Seconds)
+                    // Stage 3: High-frequency jitter + erratic crimson flashes across the whole sprite texture (0.5 Seconds)
                     playerElement.classList.remove('dr-pause-glow');
                     playerElement.classList.add('dr-tremor-rapid');
 
                     setTimeout(() => {
-                        // Finale: Clear all animation classes and drop instantly to Down state pose
+                        // Finale: Clear out flash styles and drop to Down state pose instantly
                         playerElement.classList.remove('dr-tremor-rapid');
                         playerElement.src = krisDownUrl; 
 
