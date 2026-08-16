@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Surrounded</title>
     <style>
-        /* Immersive pure black full-screen layout matching your game theme */
         body, html {
             margin: 0;
             padding: 0;
@@ -18,7 +17,6 @@
             align-items: center;
         }
 
-        /* The main stage holding everything in absolute coordinates */
         #scene-container {
             position: relative;
             width: 100vw;
@@ -28,15 +26,13 @@
             align-items: center;
         }
 
-        /* Central Player Sprite Alignment */
         .player-sprite {
             position: absolute;
             z-index: 10;
             max-height: 120px; 
-            image-rendering: pixelated; /* Keeps crispy retro pixel art clean */
+            image-rendering: pixelated;
         }
 
-        /* Ring Container that manages individual layer sizing and alignment */
         .soul-ring {
             position: absolute;
             width: 0;
@@ -46,16 +42,14 @@
             align-items: center;
         }
 
-        /* Soul Sprite configuration and pointing geometry */
         .soul-sprite {
             position: absolute;
-            width: 24px; /* Adjust size based on your pixel art specs */
+            width: 24px; 
             height: 24px;
             image-rendering: pixelated;
             transform-origin: center center; 
         }
 
-        /* Alternating Continuous CSS Rotation Animations */
         .spin-clockwise {
             animation: spinCW 25s infinite linear;
         }
@@ -78,22 +72,33 @@
 <body>
 
     <div id="scene-container">
-        <!-- FIXED PATH: Stepping back one directory level to reach the root Assets folder -->
-        <img src="../Assets/Kris_Idle.png" alt="Kris" class="player-sprite">
+        <!-- The player image src will be safely injected by JavaScript below -->
+        <img id="player-img" alt="Kris" class="player-sprite">
     </div>
 
     <script>
+        // DYNAMIC PATH SOLVER: Detects your exact GitHub site root URL automatically
+        const pathArray = window.location.pathname.split('/');
+        const repoName = pathArray[1]; // Gets your repository name
+        const basePath = window.location.origin + '/' + repoName + '/';
+
+        // Set the exact paths pointing back to the root Assets folder
+        // CRITICAL: Double check if your folder on GitHub is "Assets" or "assets"!
+        const playerAssetUrl = basePath + 'Assets/Kris_Idle.png';
+        const soulAssetUrl = basePath + 'Assets/Soul.png';
+
+        // Apply the resolved URL to Kris
+        document.getElementById('player-img').src = playerAssetUrl;
+
         const container = document.getElementById('scene-container');
         
-        // Configuration array for your concentric soul circles
         const ringSettings = [
-            { radius: 130, count: 12 }, // Layer 1 (Closest)
-            { radius: 220, count: 20 }, // Layer 2
-            { radius: 310, count: 28 }, // Layer 3
-            { radius: 400, count: 36 }  // Layer 4 (Furthest)
+            { radius: 130, count: 12 }, 
+            { radius: 220, count: 20 }, 
+            { radius: 310, count: 28 }, 
+            { radius: 400, count: 36 }  
         ];
 
-        // Loop through each ring tier setup
         ringSettings.forEach((ring, ringIndex) => {
             const ringElement = document.createElement('div');
             ringElement.classList.add('soul-ring');
@@ -106,8 +111,7 @@
 
             for (let i = 0; i < ring.count; i++) {
                 const soul = document.createElement('img');
-                // FIXED PATH: Stepping back one directory level here too
-                soul.src = '../Assets/Soul.png'; 
+                soul.src = soulAssetUrl; // Uses the dynamic foolproof absolute path
                 soul.classList.add('soul-sprite');
 
                 const angleDegree = (i / ring.count) * 360;
@@ -116,7 +120,6 @@
                 const x = Math.cos(angleRad) * ring.radius;
                 const y = Math.sin(angleRad) * ring.radius;
 
-                // Rotates 270 degrees to keep the bottom facing inward
                 const targetFacingRotation = angleDegree + 270;
 
                 soul.style.transform = `translate(${x}px, ${y}px) rotate(${targetFacingRotation}deg)`;
