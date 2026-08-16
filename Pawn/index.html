@@ -26,60 +26,81 @@
             align-items: center;
         }
 
-        /* Central Player Base Styling */
-        .player-sprite {
+        /* Sprite frame container protecting layout geometry */
+        .player-wrapper {
             position: absolute;
             z-index: 10;
-            max-height: 120px; 
-            image-rendering: pixelated; /* Keeps pixel art completely crisp */
+            width: auto;
+            height: 120px;
             cursor: pointer;
         }
 
-        /* STAGE 1: Steady, rhythmic red flashes that shake Kris on every single beat */
-        .dr-tremor-slow {
-            animation: deltaruneSynchronizedSlow 0.3s infinite steps(1);
-        }
-
-        /* STAGE 2: The eerie pause. Shaking stops completely, but a resting red aura holds over them */
-        .dr-pause-glow {
-            filter: drop-shadow(0 0 15px #ff0000) sepia(1) saturate(5) brightness(0.6);
-        }
-
-        /* STAGE 3: Violent, ultra-rapid frantic vibration synced to blinding crimson flashes */
-        .dr-tremor-rapid {
-            animation: deltaruneSynchronizedRapid 0.06s infinite steps(1);
+        /* Base Player Image */
+        .player-sprite {
+            height: 100%;
+            image-rendering: pixelated;
+            display: block;
         }
 
         /* 
-          PURE RED SYNCHRONIZATION MATH:
-          By using 'sepia(1) saturate(10) hue-rotate(0deg)' instead of negative values, 
-          the sprite turns completely crimson red with NO yellow tints.
-          The translate X axis only shifts when the red filter kicks in!
+           THE DUAL-LAYER RED ENGINE:
+           Instead of filter calculations, this stacks a perfect duplicate clip over Kris.
+           Using webkit-mask forces it to match the exact shape of your character art,
+           and background-color guarantees it is PURE CRIMSON RED with no yellow tints possible!
         */
-        @keyframes deltaruneSynchronizedSlow {
-            /* Frame A: Normal texture, centered */
-            0%, 49% { 
-                transform: translateX(0); 
-                filter: none; 
-            }
-            /* Frame B: Crimson Red overlay, shakes 5px to the left */
-            50%, 100% { 
-                transform: translateX(-5px); 
-                filter: drop-shadow(0 0 15px #ff0000) sepia(1) saturate(20) brightness(0.8); 
-            }
+        .red-flash-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ff0000; /* Crisp pure crimson */
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            mask-position: center;
+            opacity: 0; /* Hidden by default */
+            pointer-events: none;
+            /* Creates a clean outer soul extraction aura glow behind the red shape */
+            filter: drop-shadow(0 0 15px #ff0000); 
         }
 
-        @keyframes deltaruneSynchronizedRapid {
-            /* Frame A: Crimson Red overlay, shakes 8px to the right */
-            0%, 49% { 
-                transform: translateX(8px); 
-                filter: drop-shadow(0 0 25px #ff0000) sepia(1) saturate(25) brightness(1.2); 
-            }
-            /* Frame B: Normal texture, shakes 8px to the left */
-            50%, 100% { 
-                transform: translateX(-8px); 
-                filter: none; 
-            }
+        /* STAGE 1 TIMING: Shakes the wrapper on the exact beats the red overlay flashes */
+        .shake-slow-sync {
+            animation: jitterSlowSync 0.3s infinite steps(1);
+        }
+        .flash-slow-sync {
+            animation: overlaySlowSync 0.3s infinite steps(1);
+        }
+
+        /* STAGE 3 TIMING: Aggressive rapid side-to-side jitter synced with ultra-fast flashes */
+        .shake-rapid-sync {
+            animation: jitterRapidSync 0.06s infinite steps(1);
+        }
+        .flash-rapid-sync {
+            animation: overlayRapidSync 0.06s infinite steps(1);
+        }
+
+        /* STAGE 1 BEAT SCHEDULING (Moves only when red opacity hits 1) */
+        @keyframes jitterSlowSync {
+            0%, 49% { transform: translateX(0); }
+            50%, 100% { transform: translateX(-6px); }
+        }
+        @keyframes overlaySlowSync {
+            0%, 49% { opacity: 0; }
+            50%, 100% { opacity: 1; }
+        }
+
+        /* STAGE 3 BEAT SCHEDULING (Rapid cross-vibration alternating colors) */
+        @keyframes jitterRapidSync {
+            0%, 49% { transform: translateX(8px); }
+            50%, 100% { transform: translateX(-8px); }
+        }
+        @keyframes overlayRapidSync {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
         }
 
         /* Soul Rings Configurations */
@@ -110,11 +131,15 @@
 <body>
 
     <div id="scene-container">
-        <img id="player-img" alt="Kris" class="player-sprite">
+        <!-- Interactive Multi-layer Player Cluster -->
+        <div id="player-container" class="player-wrapper">
+            <img id="player-img" alt="Kris" class="player-sprite">
+            <div id="flash-overlay" class="red-flash-overlay"></div>
+        </div>
     </div>
 
     <script>
-        // Folder depth path engine for GitHub pages
+        // Resolve dynamic path configurations for subfolders automatically
         const pathSegments = window.location.pathname.split('/').filter(s => s.length > 0);
         let repoBasePath = window.location.origin + '/';
         if (pathSegments.length > 1) {
@@ -126,7 +151,15 @@
         const soulAssetUrl = repoBasePath + 'Assets/Soul.png';
 
         const playerElement = document.getElementById('player-img');
+        const overlayElement = document.getElementById('flash-overlay');
+        const containerElement = document.getElementById('player-container');
+
+        // Apply primary source asset
         playerElement.src = krisIdleUrl;
+        
+        // Link the mask shape layer directly to your Kris image structure
+        overlayElement.style.webkitMaskImage = `url('${krisIdleUrl}')`;
+        overlayElement.style.maskImage = `url('${krisIdleUrl}')`;
 
         // Populate Spinning Soul Matrix
         const container = document.getElementById('scene-container');
@@ -158,30 +191,39 @@
             container.appendChild(ringElement);
         });
 
-        // --- THE 3-STAGE CHOREOGRAPHY TIMELINE ---
+        // --- SYNCHRONIZED CHOREOGRAPHY ENGINE ---
         let isPlayingSequence = false;
 
-        playerElement.addEventListener('click', () => {
+        containerElement.addEventListener('click', () => {
             if (isPlayingSequence) return;
             isPlayingSequence = true;
 
-            // Stage 1: Synced red flashes and low-framerate ticks (1.0 Second)
-            playerElement.classList.add('dr-tremor-slow');
+            // Stage 1: Active low-frequency frame shaking linked directly to crimson silhouette visibility (1.0 Second)
+            containerElement.classList.add('shake-slow-sync');
+            overlayElement.classList.add('flash-slow-sync');
 
             setTimeout(() => {
-                // Stage 2: Shaking stops, holding a clean crimson shade over the center (0.5 Seconds)
-                playerElement.classList.remove('dr-tremor-slow');
-                playerElement.classList.add('dr-pause-glow');
-                
+                // Stage 2: Stop shaking, hold a flat, steady pure crimson glow mask layer over Kris (0.5 Seconds)
+                containerElement.classList.remove('shake-slow-sync');
+                overlayElement.classList.remove('flash-slow-sync');
+                overlayElement.style.opacity = "0.7"; // Solid resting red tint overlay
+
                 setTimeout(() => {
-                    // Stage 3: Extreme vibration linked entirely to ultra-rapid flashes (0.5 Seconds)
-                    playerElement.classList.remove('dr-pause-glow');
-                    playerElement.classList.add('dr-tremor-rapid');
+                    // Stage 3: Extreme high-frequency vibration tied completely to hyper-flashes (0.5 Seconds)
+                    overlayElement.style.opacity = ""; // Clear manual block
+                    containerElement.classList.add('shake-rapid-sync');
+                    overlayElement.classList.add('flash-rapid-sync');
 
                     setTimeout(() => {
-                        // Finale: Remove filter animations and drop to the Kris_Down image instantly
-                        playerElement.classList.remove('dr-tremor-rapid');
-                        playerElement.src = krisDownUrl; 
+                        // Finale: Drop all active animation flags and snap immediately into the down position image state
+                        containerElement.classList.remove('shake-rapid-sync');
+                        overlayElement.classList.remove('flash-rapid-sync');
+                        
+                        // Switch base view to fallen over character state
+                        playerElement.src = krisDownUrl;
+                        
+                        // Turn off masks so the fallen character art reads normally
+                        overlayElement.style.display = "none"; 
 
                     }, 500); // Stage 3 Duration
 
