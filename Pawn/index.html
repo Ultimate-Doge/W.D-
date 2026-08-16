@@ -82,25 +82,31 @@
         @keyframes spinCW { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes spinCCW { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
 
-        /* NEW CUTSCENE ELEMENTS: Launching Soul and Red Fullscreen damage overlay */
+        /* FIXED: Added strict positioning properties to keep it perfectly centered over Kris */
         .launched-soul {
             position: absolute;
             z-index: 100;
             width: 24px;
             height: 24px;
+            left: 50%;
+            top: 50%;
+            margin-left: -12px;
+            margin-top: -12px;
             image-rendering: pixelated;
             display: none;
             transform: scale(1);
         }
 
+        /* Adjusted zoom to 0.9s so it is clearly tracked by the player's eyes */
         .soul-zoom-animation {
             display: block;
-            animation: zoomTowardsScreen 0.5s forwards ease-in;
+            animation: zoomTowardsScreen 0.9s forwards cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         @keyframes zoomTowardsScreen {
             0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(120); opacity: 0; }
+            70% { transform: scale(35); opacity: 1; }
+            100% { transform: scale(90); opacity: 0; }
         }
 
         .damage-overlay {
@@ -116,12 +122,12 @@
         }
 
         .screen-flash-animation {
-            animation: redDamageFlash 0.4s forwards ease-out;
+            animation: redDamageFlash 0.5s forwards ease-out;
         }
 
         @keyframes redDamageFlash {
             0% { opacity: 1; }
-            15% { opacity: 1; }
+            20% { opacity: 1; }
             100% { opacity: 0; }
         }
     </style>
@@ -139,7 +145,7 @@
         let repoBasePath = window.location.origin + '/';
         
         if (pathSegments.length > 0) {
-            repoBasePath += pathSegments[0] + '/';
+            repoBasePath += pathSegments + '/';
         }
 
         const krisIdleUrl = repoBasePath + 'Assets/Kris_Idle.png';
@@ -204,13 +210,13 @@
                         // 1. Immediately swaps the sprite to Kris_Down
                         playerElement.src = krisDownUrl; 
 
-                        // 2. Spawn the lone soul asset right over Kris's body chest coordinates
+                        // 2. Launch the heart directly out from center screen coordinates
                         launchedSoulElement.classList.add('soul-zoom-animation');
 
-                        // 3. Right as the soul finishes zooming into the screen lens camera (0.5s), trigger the damage flash
+                        // 3. Trigger the fullscreen red flash exactly as the heart expands over the frame (at 0.7s)
                         setTimeout(() => {
                             flashOverlayElement.classList.add('screen-flash-animation');
-                        }, 500);
+                        }, 700);
 
                     }, 500);
 
