@@ -32,7 +32,6 @@
         .player-sprite {
             position: absolute;
             z-index: 10;
-            /* Adjust width/height if needed to fit your asset's aspect ratio */
             max-height: 120px; 
             image-rendering: pixelated; /* Keeps crispy retro pixel art clean */
         }
@@ -53,8 +52,6 @@
             width: 24px; /* Adjust size based on your pixel art specs */
             height: 24px;
             image-rendering: pixelated;
-            /* transform-origin is critical: it sets the pivot point 
-               so the ring spins perfectly around the center player */
             transform-origin: center center; 
         }
 
@@ -81,17 +78,14 @@
 <body>
 
     <div id="scene-container">
-        <!-- Central Player Asset -->
-        <!-- Note: Added standard .png extension. Change if your file uses .gif or .jpg -->
-        <img src="Assets/Kris_Idle.png" alt="Kris" class="player-sprite">
+        <!-- FIXED PATH: Stepping back one directory level to reach the root Assets folder -->
+        <img src="../Assets/Kris_Idle.png" alt="Kris" class="player-sprite">
     </div>
 
     <script>
         const container = document.getElementById('scene-container');
         
         // Configuration array for your concentric soul circles
-        // radius: distance from the center player in pixels
-        // count: how many souls populate that specific ring
         const ringSettings = [
             { radius: 130, count: 12 }, // Layer 1 (Closest)
             { radius: 220, count: 20 }, // Layer 2
@@ -101,49 +95,34 @@
 
         // Loop through each ring tier setup
         ringSettings.forEach((ring, ringIndex) => {
-            // Create a wrapper element for this specific ring layer
             const ringElement = document.createElement('div');
             ringElement.classList.add('soul-ring');
             
-            // Alternates rotation direction based on whether layer index is even or odd
             if (ringIndex % 2 === 0) {
                 ringElement.classList.add('spin-clockwise');
             } else {
                 ringElement.classList.add('spin-counterclockwise');
             }
 
-            // Distribute individual souls evenly along the full 360-degree perimeter
             for (let i = 0; i < ring.count; i++) {
                 const soul = document.createElement('img');
-                soul.src = 'Assets/Soul.png'; // Points to your Soul asset
+                // FIXED PATH: Stepping back one directory level here too
+                soul.src = '../Assets/Soul.png'; 
                 soul.classList.add('soul-sprite');
 
-                // Calculate the exact angle slice for this specific soul item
                 const angleDegree = (i / ring.count) * 360;
                 const angleRad = (angleDegree * Math.PI) / 180;
 
-                // Position calculation relative to center via Trigonometry
                 const x = Math.cos(angleRad) * ring.radius;
                 const y = Math.sin(angleRad) * ring.radius;
 
-                /* 
-                  ROTATION MATH LOGIC:
-                  To make the BOTTOM of the soul image point directly at the player center:
-                  1. The position angle is 'angleDegree'.
-                  2. By default, a 0-degree CSS rotation faces right.
-                  3. Adding 90 degrees points the top inward.
-                  4. Adding 270 degrees (or subtracting 90) rotates it completely upside down, 
-                     forcing the bottom edge of the sprite asset to align pointing at the center.
-                */
+                // Rotates 270 degrees to keep the bottom facing inward
                 const targetFacingRotation = angleDegree + 270;
 
-                // Apply both placement offset coordinates and orientation layout styles
                 soul.style.transform = `translate(${x}px, ${y}px) rotate(${targetFacingRotation}deg)`;
-
                 ringElement.appendChild(soul);
             }
 
-            // Injects the completed ring behind or in front of your structures
             container.appendChild(ringElement);
         });
     </script>
