@@ -1,1 +1,152 @@
-iek
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surrounded</title>
+    <style>
+        /* Immersive pure black full-screen layout matching your game theme */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000000;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* The main stage holding everything in absolute coordinates */
+        #scene-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Central Player Sprite Alignment */
+        .player-sprite {
+            position: absolute;
+            z-index: 10;
+            /* Adjust width/height if needed to fit your asset's aspect ratio */
+            max-height: 120px; 
+            image-rendering: pixelated; /* Keeps crispy retro pixel art clean */
+        }
+
+        /* Ring Container that manages individual layer sizing and alignment */
+        .soul-ring {
+            position: absolute;
+            width: 0;
+            height: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Soul Sprite configuration and pointing geometry */
+        .soul-sprite {
+            position: absolute;
+            width: 24px; /* Adjust size based on your pixel art specs */
+            height: 24px;
+            image-rendering: pixelated;
+            /* transform-origin is critical: it sets the pivot point 
+               so the ring spins perfectly around the center player */
+            transform-origin: center center; 
+        }
+
+        /* Alternating Continuous CSS Rotation Animations */
+        .spin-clockwise {
+            animation: spinCW 25s infinite linear;
+        }
+
+        .spin-counterclockwise {
+            animation: spinCCW 25s infinite linear;
+        }
+
+        @keyframes spinCW {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes spinCCW {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="scene-container">
+        <!-- Central Player Asset -->
+        <!-- Note: Added standard .png extension. Change if your file uses .gif or .jpg -->
+        <img src="Assets/Kris_Idle.png" alt="Kris" class="player-sprite">
+    </div>
+
+    <script>
+        const container = document.getElementById('scene-container');
+        
+        // Configuration array for your concentric soul circles
+        // radius: distance from the center player in pixels
+        // count: how many souls populate that specific ring
+        const ringSettings = [
+            { radius: 130, count: 12 }, // Layer 1 (Closest)
+            { radius: 220, count: 20 }, // Layer 2
+            { radius: 310, count: 28 }, // Layer 3
+            { radius: 400, count: 36 }  // Layer 4 (Furthest)
+        ];
+
+        // Loop through each ring tier setup
+        ringSettings.forEach((ring, ringIndex) => {
+            // Create a wrapper element for this specific ring layer
+            const ringElement = document.createElement('div');
+            ringElement.classList.add('soul-ring');
+            
+            // Alternates rotation direction based on whether layer index is even or odd
+            if (ringIndex % 2 === 0) {
+                ringElement.classList.add('spin-clockwise');
+            } else {
+                ringElement.classList.add('spin-counterclockwise');
+            }
+
+            // Distribute individual souls evenly along the full 360-degree perimeter
+            for (let i = 0; i < ring.count; i++) {
+                const soul = document.createElement('img');
+                soul.src = 'Assets/Soul.png'; // Points to your Soul asset
+                soul.classList.add('soul-sprite');
+
+                // Calculate the exact angle slice for this specific soul item
+                const angleDegree = (i / ring.count) * 360;
+                const angleRad = (angleDegree * Math.PI) / 180;
+
+                // Position calculation relative to center via Trigonometry
+                const x = Math.cos(angleRad) * ring.radius;
+                const y = Math.sin(angleRad) * ring.radius;
+
+                /* 
+                  ROTATION MATH LOGIC:
+                  To make the BOTTOM of the soul image point directly at the player center:
+                  1. The position angle is 'angleDegree'.
+                  2. By default, a 0-degree CSS rotation faces right.
+                  3. Adding 90 degrees points the top inward.
+                  4. Adding 270 degrees (or subtracting 90) rotates it completely upside down, 
+                     forcing the bottom edge of the sprite asset to align pointing at the center.
+                */
+                const targetFacingRotation = angleDegree + 270;
+
+                // Apply both placement offset coordinates and orientation layout styles
+                soul.style.transform = `translate(${x}px, ${y}px) rotate(${targetFacingRotation}deg)`;
+
+                ringElement.appendChild(soul);
+            }
+
+            // Injects the completed ring behind or in front of your structures
+            container.appendChild(ringElement);
+        });
+    </script>
+
+</body>
+</html>
