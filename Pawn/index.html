@@ -33,43 +33,38 @@
             max-height: 120px; 
             image-rendering: pixelated;
             cursor: pointer;
-            transition: filter 0.1s ease;
         }
 
-        /* STAGE 1 & 2: Controlled, deliberate hit shaking + red tint pulsing */
-        .shake-pulse-slow {
-            animation: slowShake 0.1s infinite alternate, redPulse 0.3s infinite ease-in-out;
+        /* DELTARUNE STYLE STAGE 1: Fast horizontal-only shake + rapid red overlay pulse */
+        .deltarune-shake-slow {
+            animation: horizontalShakeSlow 0.05s infinite alternate, deltaruneRedPulse 0.15s infinite ease-in-out;
         }
 
-        /* STAGE 3: High-velocity structural panic shake + deeper red flash */
-        .shake-pulse-rapid {
-            animation: rapidShake 0.04s infinite alternate, redPulseIntensity 0.1s infinite ease-in-out;
+        /* DELTARUNE STYLE STAGE 3: High-frequency horizontal rip shake + intense red overlay flash */
+        .deltarune-shake-rapid {
+            animation: horizontalShakeRapid 0.02s infinite alternate, deltaruneRedPulseIntense 0.06s infinite ease-in-out;
         }
 
-        /* Dynamic toggle to pause soul-spinning mechanics on click */
-        .paused-animation {
-            animation-play-state: paused !important;
+        /* STRICT HORIZONTAL ONLY SHAKE KEYFRAMES */
+        @keyframes horizontalShakeSlow {
+            0% { transform: translateX(4px); }
+            100% { transform: translateX(-4px); }
         }
 
-        /* Animation Math Keyframes */
-        @keyframes slowShake {
-            0% { transform: translate(2px, 1px) rotate(0deg); }
-            100% { transform: translate(-2px, -1px) rotate(-1deg); }
+        @keyframes horizontalShakeRapid {
+            0% { transform: translateX(8px); }
+            100% { transform: translateX(-8px); }
         }
 
-        @keyframes rapidShake {
-            0% { transform: translate(5px, -3px) rotate(-2deg); }
-            100% { transform: translate(-5px, 3px) rotate(2deg); }
+        /* DELTARUNE RED SOUL PULSE FILTERS (Simulates extraction energy color shifts) */
+        @keyframes deltaruneRedPulse {
+            0%, 100% { filter: drop-shadow(0 0 2px #ff0000) sepia(0.3) saturate(2) brightness(1); }
+            50% { filter: drop-shadow(0 0 20px #ff0000) sepia(1) saturate(8) brightness(0.7); }
         }
 
-        @keyframes redPulse {
-            0%, 100% { filter: drop-shadow(0 0 0px rgba(255,0,0,0)) sepia(0) saturate(1) hue-rotate(0deg); }
-            50% { filter: drop-shadow(0 0 15px #ff0000) sepia(1) saturate(5) hue-rotate(-50deg); }
-        }
-
-        @keyframes redPulseIntensity {
-            0%, 100% { filter: drop-shadow(0 0 5px #ff0000) sepia(0.8) saturate(4); }
-            50% { filter: drop-shadow(0 0 30px #ff0000) sepia(1) saturate(20) brightness(0.6); }
+        @keyframes deltaruneRedPulseIntense {
+            0%, 100% { filter: drop-shadow(0 0 8px #ff0000) sepia(0.8) saturate(5) brightness(0.6); }
+            50% { filter: drop-shadow(0 0 45px #ff0000) sepia(1) saturate(25) brightness(1.3); }
         }
 
         /* Soul Rings Configurations */
@@ -104,13 +99,12 @@
     </div>
 
     <script>
-        // Resolve dynamic paths for GitHub subfolders flawlessly
+        // Dynamic path calculations for subfolder hosting environments
         const currentPath = window.location.pathname;
         const pathSegments = currentPath.split('/').filter(segment => segment.length > 0);
-        const repoName = pathSegments[0] || ''; 
+        const repoName = pathSegments || ''; 
         const repoBasePath = window.location.origin + '/' + repoName + '/';
 
-        // Preloading all structural player states to eliminate any loading delays on click
         const krisIdleUrl = repoBasePath + 'Assets/Kris_Idle.png';
         const krisDownUrl = repoBasePath + 'Assets/Kris_Down.png';
         const soulAssetUrl = repoBasePath + 'Assets/Soul.png';
@@ -118,7 +112,7 @@
         const playerElement = document.getElementById('player-img');
         playerElement.src = krisIdleUrl;
 
-        // Populate Soul Rings
+        // Populate Spinning Soul Matrix
         const container = document.getElementById('scene-container');
         const ringSettings = [
             { radius: 130, count: 12 }, 
@@ -129,7 +123,7 @@
 
         ringSettings.forEach((ring, ringIndex) => {
             const ringElement = document.createElement('div');
-            ringElement.classList.add('soul-ring', 'ring-layer');
+            ringElement.classList.add('soul-ring');
             ringElement.classList.add(ringIndex % 2 === 0 ? 'spin-clockwise' : 'spin-counterclockwise');
 
             for (let i = 0; i < ring.count; i++) {
@@ -148,48 +142,36 @@
             container.appendChild(ringElement);
         });
 
-        // --- CUTSCENE CLICK EVENT ENGINE ---
+        // --- HIGH-SPEED SPEED RUN TIMER CHOREOGRAPHY ---
         let isPlayingSequence = false;
 
         playerElement.addEventListener('click', () => {
-            // Guard clause to prevent spamming clicks during active animation sequences
             if (isPlayingSequence) return;
             isPlayingSequence = true;
 
-            // Step A: Pause the rotation engine of all external soul rings
-            document.querySelectorAll('.ring-layer').forEach(ring => {
-                ring.classList.add('paused-animation');
-            });
+            // Note: The soul rings NO LONGER get paused here; they will keep spinning through the entire sequence.
 
-            // Stage 1: Initial Shaking and Red Pulsing (Duration: 1.0 Second)
-            playerElement.classList.add('shake-pulse-slow');
+            // Stage 1: Fast horizontal shake and extraction red pulse (Duration: 0.4 seconds)
+            playerElement.classList.add('deltarune-shake-slow');
 
             setTimeout(() => {
-                // Step B: Stop shaking temporarily for 0.5 seconds (leaving red pulse resting)
-                playerElement.classList.remove('shake-pulse-slow');
+                // Stage 2: Stop shaking temporarily, leaving pure high-frequency glow (Duration: 0.2 seconds)
+                playerElement.classList.remove('deltarune-shake-slow');
                 
                 setTimeout(() => {
-                    // Stage 3: Intense, high-velocity panic shaking and deep red flash (Duration: 0.5 Seconds)
-                    playerElement.classList.add('shake-pulse-rapid');
+                    // Stage 3: Extreme aggressive horizontal jitter and massive neon red surge (Duration: 0.2 seconds)
+                    playerElement.classList.add('deltarune-shake-rapid');
 
                     setTimeout(() => {
-                        // Step C: Terminate all active animation sequences and swap target asset asset paths
-                        playerElement.classList.remove('shake-pulse-rapid');
-                        playerElement.src = krisDownUrl; // Changes to down state image
-                        
-                        // Optional: Resume soul rotation engines after the transformation finishes
-                        document.querySelectorAll('.ring-layer').forEach(ring => {
-                            ring.classList.remove('paused-animation');
-                        });
-                        
-                        // Keeps sequence locked or lets user re-trigger later depending on preference
-                        // isPlayingSequence = false; 
+                        // Finale: Clean up CSS classes instantly and lock into down-state image
+                        playerElement.classList.remove('deltarune-shake-rapid');
+                        playerElement.src = krisDownUrl; 
 
-                    }, 500); // 0.5 Seconds End stage
+                    }, 200); // 0.2 second rapid burst finish
 
-                }, 500); // 0.5 Seconds Static delay gap (Stage 2)
+                }, 200); // 0.2 second middle static pause gap
 
-            }, 1000); // 1.0 Second Initial duration (Stage 1)
+            }, 400); // 0.4 second initial hit stage
         });
     </script>
 
