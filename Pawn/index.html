@@ -26,79 +26,60 @@
             align-items: center;
         }
 
-        /* Sprite frame container protecting layout geometry */
-        .player-wrapper {
+        /* Central Player Base Styling - Kept as a single consolidated image layer */
+        .player-sprite {
             position: absolute;
             z-index: 10;
-            width: auto;
-            height: 120px;
+            max-height: 120px; 
+            image-rendering: pixelated; /* Keeps retro pixel art crisp */
             cursor: pointer;
+            transform: translateX(0);
         }
 
-        /* Base Player Image */
-        .player-sprite {
-            height: 100%;
-            image-rendering: pixelated; /* Keeps pixel art completely crisp */
-            display: block;
+        /* STAGE 1: Steady rhythmic horizontal snaps synced to pure crimson filters */
+        .shake-slow-sync {
+            animation: deltaruneSlow 0.3s infinite steps(1);
+        }
+
+        /* STAGE 2: Perfect stillness while holding a deep, flat red hue shadow over the art texture */
+        .pause-glow-sync {
+            filter: drop-shadow(0 0 15px #ff0000) matrix(1, 0, 0, 0, 0,  0, 0, 0, 0, 0,  0, 0, 0, 0, 0,  1, 0, 0, 0, 0) !important;
+        }
+
+        /* STAGE 3: Intense, ultra-rapid horizontal vibration paired with high-speed color flashes */
+        .shake-rapid-sync {
+            animation: deltaruneRapid 0.06s infinite steps(1);
         }
 
         /* 
-           THE DUAL-LAYER RED ENGINE:
-           Stacks a perfect duplicate clip over Kris using pure crimson background masks 
-           so that yellow flashes are structurally impossible.
+          FOOLPROOF DELTARUNE COLOR MATRIX HACK:
+          By using an advanced CSS SVG matrix filter, we strip out 100% of all green and blue channels.
+          This turns the character completely, vibrantly RED over the image center with zero yellow risk.
         */
-        .red-flash-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #ff0000; /* Pure crimson */
-            -webkit-mask-size: contain;
-            mask-size: contain;
-            -webkit-mask-repeat: no-repeat;
-            mask-repeat: no-repeat;
-            -webkit-mask-position: center;
-            mask-position: center;
-            opacity: 0; /* Hidden by default */
-            pointer-events: none;
-            filter: drop-shadow(0 0 15px #ff0000); 
+        @keyframes deltaruneSlow {
+            /* Frame A: Completely untouched normal colors, centered */
+            0%, 49% { 
+                transform: translateX(0); 
+                filter: none; 
+            }
+            /* Frame B: Strict Pure Crimson layout, snaps exactly 6px to the left */
+            50%, 100% { 
+                transform: translateX(-6px); 
+                filter: drop-shadow(0 0 15px #ff0000) url('data:image/svg+xml;utf8,<svg xmlns="http://w3.org"><filter id="red"><feColorMatrix type="matrix" values="1 1 1 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"/></filter></svg>#red');
+            }
         }
 
-        /* STAGE 1 TIMING: Shakes the wrapper on the exact beats the red overlay flashes */
-        .shake-slow-sync {
-            animation: jitterSlowSync 0.3s infinite steps(1);
-        }
-        .flash-slow-sync {
-            animation: overlaySlowSync 0.3s infinite steps(1);
-        }
-
-        /* STAGE 3 TIMING: Aggressive rapid side-to-side jitter synced with ultra-fast flashes */
-        .shake-rapid-sync {
-            animation: jitterRapidSync 0.06s infinite steps(1);
-        }
-        .flash-rapid-sync {
-            animation: overlayRapidSync 0.06s infinite steps(1);
-        }
-
-        /* STAGE 1 BEAT SCHEDULING (Moves only when red opacity hits 1) */
-        @keyframes jitterSlowSync {
-            0%, 49% { transform: translateX(0); }
-            50%, 100% { transform: translateX(-6px); }
-        }
-        @keyframes overlaySlowSync {
-            0%, 49% { opacity: 0; }
-            50%, 100% { opacity: 1; }
-        }
-
-        /* STAGE 3 BEAT SCHEDULING (Rapid cross-vibration alternating colors) */
-        @keyframes jitterRapidSync {
-            0%, 49% { transform: translateX(8px); }
-            50%, 100% { transform: translateX(-8px); }
-        }
-        @keyframes overlayRapidSync {
-            0%, 49% { opacity: 1; }
-            50%, 100% { opacity: 0; }
+        @keyframes deltaruneRapid {
+            /* Frame A: Strict Pure Crimson layout, snaps exactly 8px to the right */
+            0%, 49% { 
+                transform: translateX(8px); 
+                filter: drop-shadow(0 0 25px #ff0000) url('data:image/svg+xml;utf8,<svg xmlns="http://w3.org"><filter id="red"><feColorMatrix type="matrix" values="1 1 1 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"/></filter></svg>#red');
+            }
+            /* Frame B: Completely untouched normal colors, snaps exactly 8px to the left */
+            50%, 100% { 
+                transform: translateX(-8px); 
+                filter: none; 
+            }
         }
 
         /* Soul Rings Configurations */
@@ -129,18 +110,16 @@
 <body>
 
     <div id="scene-container">
-        <div id="player-container" class="player-wrapper">
-            <img id="player-img" alt="Kris" class="player-sprite">
-            <div id="flash-overlay" class="red-flash-overlay"></div>
-        </div>
+        <!-- Reverted to a single structural asset tag to completely prevent any layer separation -->
+        <img id="player-img" alt="Kris" class="player-sprite">
     </div>
 
     <script>
-        // FIXED PATH ENGINE: Targets the exact repository name safely
+        // CLEAN REPOSITORY PATH RESOLVER
         const pathSegments = window.location.pathname.split('/').filter(s => s.length > 0);
         let repoBasePath = window.location.origin + '/';
         
-        // Grab only the first folder segment (the repository folder name)
+        // Fixes the comma bug by explicitly selecting only the first entry (the repo name)
         if (pathSegments.length > 0) {
             repoBasePath += pathSegments[0] + '/';
         }
@@ -150,13 +129,7 @@
         const soulAssetUrl = repoBasePath + 'Assets/Soul.png';
 
         const playerElement = document.getElementById('player-img');
-        const overlayElement = document.getElementById('flash-overlay');
-        const containerElement = document.getElementById('player-container');
-
-        // Apply assets cleanly
         playerElement.src = krisIdleUrl;
-        overlayElement.style.webkitMaskImage = `url('${krisIdleUrl}')`;
-        overlayElement.style.maskImage = `url('${krisIdleUrl}')`;
 
         // Populate Spinning Soul Matrix
         const container = document.getElementById('scene-container');
@@ -188,36 +161,30 @@
             container.appendChild(ringElement);
         });
 
-        // --- SYNCHRONIZED CHOREOGRAPHY TIMELINE ---
+        // --- SYNCHRONIZED CHOREOGRAPHY ENGINE ---
         let isPlayingSequence = false;
 
-        containerElement.addEventListener('click', () => {
+        playerElement.addEventListener('click', () => {
             if (isPlayingSequence) return;
             isPlayingSequence = true;
 
-            // Stage 1: Shaking happens exactly on the red stencil flash frames (1.0 Second)
-            containerElement.classList.add('shake-slow-sync');
-            overlayElement.classList.add('flash-slow-sync');
+            // Stage 1: Left and right ticks mapped right to the pure red channel filter triggers (1.0 Second)
+            playerElement.classList.add('shake-slow-sync');
 
             setTimeout(() => {
-                // Stage 2: Freeze shake completely, resting in a stable 70% opacity red filter tint (0.5 Seconds)
-                containerElement.classList.remove('shake-slow-sync');
-                overlayElement.classList.remove('flash-slow-sync');
-                overlayElement.style.opacity = "0.7"; 
+                // Stage 2: Shaking stops completely, locking into a flat crimson hue layer over the center art (0.5 Seconds)
+                playerElement.classList.remove('shake-slow-sync');
+                playerElement.classList.add('pause-glow-sync');
 
                 setTimeout(() => {
-                    // Stage 3: Extreme high-frequency vibration tied completely to fast mask flashes (0.5 Seconds)
-                    overlayElement.style.opacity = ""; 
-                    containerElement.classList.add('shake-rapid-sync');
-                    overlayElement.classList.add('flash-rapid-sync');
+                    // Stage 3: Extreme high-speed horizontal jitter and rapid color swaps (0.5 Seconds)
+                    playerElement.classList.remove('pause-glow-sync');
+                    playerElement.classList.add('shake-rapid-sync');
 
                     setTimeout(() => {
-                        // Finale: Drop all active animation tags and snap instantly into Kris_Down
-                        containerElement.classList.remove('shake-rapid-sync');
-                        overlayElement.classList.remove('flash-rapid-sync');
-                        
-                        playerElement.src = krisDownUrl;
-                        overlayElement.style.display = "none"; // Hide mask layer entirely
+                        // Finale: Wipe filter flags and load the Kris_Down asset state cleanly
+                        playerElement.classList.remove('shake-rapid-sync');
+                        playerElement.src = krisDownUrl; 
 
                     }, 500); // Stage 3 Duration
 
