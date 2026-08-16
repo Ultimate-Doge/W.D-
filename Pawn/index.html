@@ -72,22 +72,29 @@
 <body>
 
     <div id="scene-container">
-        <!-- The player image src will be safely injected by JavaScript below -->
         <img id="player-img" alt="Kris" class="player-sprite">
     </div>
 
     <script>
-        // DYNAMIC PATH SOLVER: Detects your exact GitHub site root URL automatically
-        const pathArray = window.location.pathname.split('/');
-        const repoName = pathArray[1]; // Gets your repository name
-        const basePath = window.location.origin + '/' + repoName + '/';
+        /*
+          FIXED PATHING LOGIC FOR GITHUB PAGES:
+          1. Detect the repository name from the URL path (e.g., "/repo-name/Help/").
+          2. Extract just the first folder name, which is your repository name.
+          3. Build an absolute root URL so it always points to "https://github.io".
+        */
+        const currentPath = window.location.pathname; // e.g. "/repo-name/Help/"
+        const pathSegments = currentPath.split('/').filter(segment => segment.length > 0);
+        const repoName = pathSegments[0] || ''; 
+        
+        // Construct the clean base path
+        const repoBasePath = window.location.origin + '/' + repoName + '/';
 
-        // Set the exact paths pointing back to the root Assets folder
-        // CRITICAL: Double check if your folder on GitHub is "Assets" or "assets"!
-        const playerAssetUrl = basePath + 'Assets/Kris_Idle.png';
-        const soulAssetUrl = basePath + 'Assets/Soul.png';
+        // Absolute target URLs pointing directly back to your root folders
+        // CRITICAL NOTE: If your folder on GitHub is lowercase "assets", change "Assets/" below to "assets/"
+        const playerAssetUrl = repoBasePath + 'Assets/Kris_Idle.png';
+        const soulAssetUrl = repoBasePath + 'Assets/Soul.png';
 
-        // Apply the resolved URL to Kris
+        // Apply fixed URL to the central player
         document.getElementById('player-img').src = playerAssetUrl;
 
         const container = document.getElementById('scene-container');
@@ -111,7 +118,7 @@
 
             for (let i = 0; i < ring.count; i++) {
                 const soul = document.createElement('img');
-                soul.src = soulAssetUrl; // Uses the dynamic foolproof absolute path
+                soul.src = soulAssetUrl; 
                 soul.classList.add('soul-sprite');
 
                 const angleDegree = (i / ring.count) * 360;
