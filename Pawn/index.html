@@ -35,28 +35,33 @@
             cursor: pointer;
         }
 
-        /* DELTARUNE STYLE STAGE 1: Fast horizontal-only shake + rapid red overlay pulse */
-        .deltarune-shake-slow {
-            animation: horizontalShakeSlow 0.05s infinite alternate, deltaruneRedPulse 0.15s infinite ease-in-out;
+        /* DELTARUNE SOUL EXTRACTION PULSE (Persistent across all stages) */
+        .deltarune-pulse {
+            animation: deltaruneRedPulse 0.15s infinite ease-in-out;
         }
 
-        /* DELTARUNE STYLE STAGE 3: High-frequency horizontal rip shake + intense red overlay flash */
-        .deltarune-shake-rapid {
-            animation: horizontalShakeRapid 0.02s infinite alternate, deltaruneRedPulseIntense 0.06s infinite ease-in-out;
+        /* STAGE 1: Horizontal-only shake */
+        .horizontal-shake-slow {
+            animation: hShakeSlow 0.05s infinite alternate, deltaruneRedPulse 0.15s infinite ease-in-out;
+        }
+
+        /* STAGE 3: Rapid horizontal structural shake */
+        .horizontal-shake-rapid {
+            animation: hShakeRapid 0.02s infinite alternate, deltaruneRedPulseIntense 0.06s infinite ease-in-out;
         }
 
         /* STRICT HORIZONTAL ONLY SHAKE KEYFRAMES */
-        @keyframes horizontalShakeSlow {
+        @keyframes hShakeSlow {
             0% { transform: translateX(4px); }
             100% { transform: translateX(-4px); }
         }
 
-        @keyframes horizontalShakeRapid {
+        @keyframes hShakeRapid {
             0% { transform: translateX(8px); }
             100% { transform: translateX(-8px); }
         }
 
-        /* DELTARUNE RED SOUL PULSE FILTERS (Simulates extraction energy color shifts) */
+        /* DELTARUNE STYLE RED GLOW FILTERS */
         @keyframes deltaruneRedPulse {
             0%, 100% { filter: drop-shadow(0 0 2px #ff0000) sepia(0.3) saturate(2) brightness(1); }
             50% { filter: drop-shadow(0 0 20px #ff0000) sepia(1) saturate(8) brightness(0.7); }
@@ -99,11 +104,12 @@
     </div>
 
     <script>
-        // Dynamic path calculations for subfolder hosting environments
-        const currentPath = window.location.pathname;
-        const pathSegments = currentPath.split('/').filter(segment => segment.length > 0);
-        const repoName = pathSegments || ''; 
-        const repoBasePath = window.location.origin + '/' + repoName + '/';
+        // Foolproof path builder for subfolders
+        const pathSegments = window.location.pathname.split('/').filter(s => s.length > 0);
+        let repoBasePath = window.location.origin + '/';
+        if (pathSegments.length > 1) {
+            repoBasePath += pathSegments[0] + '/';
+        }
 
         const krisIdleUrl = repoBasePath + 'Assets/Kris_Idle.png';
         const krisDownUrl = repoBasePath + 'Assets/Kris_Down.png';
@@ -142,36 +148,38 @@
             container.appendChild(ringElement);
         });
 
-        // --- HIGH-SPEED SPEED RUN TIMER CHOREOGRAPHY ---
+        // --- RESTORED TIMELINE CHOREOGRAPHY ENGINE ---
         let isPlayingSequence = false;
 
         playerElement.addEventListener('click', () => {
             if (isPlayingSequence) return;
             isPlayingSequence = true;
 
-            // Note: The soul rings NO LONGER get paused here; they will keep spinning through the entire sequence.
+            // Note: The soul rings are NOT paused here; they will keep spinning through the entire event.
 
-            // Stage 1: Fast horizontal shake and extraction red pulse (Duration: 0.4 seconds)
-            playerElement.classList.add('deltarune-shake-slow');
+            // Stage 1: Shake horizontally and pulse red (Duration: 1.0 Second)
+            playerElement.classList.add('horizontal-shake-slow');
 
             setTimeout(() => {
-                // Stage 2: Stop shaking temporarily, leaving pure high-frequency glow (Duration: 0.2 seconds)
-                playerElement.classList.remove('deltarune-shake-slow');
+                // Stage 2: Stop shaking, but keep holding the red soul extraction pulse (Duration: 0.5 Seconds)
+                playerElement.classList.remove('horizontal-shake-slow');
+                playerElement.classList.add('deltarune-pulse');
                 
                 setTimeout(() => {
-                    // Stage 3: Extreme aggressive horizontal jitter and massive neon red surge (Duration: 0.2 seconds)
-                    playerElement.classList.add('deltarune-shake-rapid');
+                    // Stage 3: Shake again, rapidly shaking horizontally while flashing intense red (Duration: 0.5 Seconds)
+                    playerElement.classList.remove('deltarune-pulse');
+                    playerElement.classList.add('horizontal-shake-rapid');
 
                     setTimeout(() => {
-                        // Finale: Clean up CSS classes instantly and lock into down-state image
-                        playerElement.classList.remove('deltarune-shake-rapid');
+                        // Finale: Remove all active animation tags instantly and lock into the down state image
+                        playerElement.classList.remove('horizontal-shake-rapid');
                         playerElement.src = krisDownUrl; 
 
-                    }, 200); // 0.2 second rapid burst finish
+                    }, 500); // 0.5 Seconds rapid burst (Stage 3)
 
-                }, 200); // 0.2 second middle static pause gap
+                }, 500); // 0.5 Seconds middle rest gap (Stage 2)
 
-            }, 400); // 0.4 second initial hit stage
+            }, 1000); // 1.0 Second initial hit stage (Stage 1)
         });
     </script>
 
