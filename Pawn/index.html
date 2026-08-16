@@ -26,13 +26,53 @@
             align-items: center;
         }
 
+        /* Central Player Base Styling */
         .player-sprite {
             position: absolute;
             z-index: 10;
             max-height: 120px; 
             image-rendering: pixelated;
+            cursor: pointer;
+            transition: filter 0.1s ease;
         }
 
+        /* STAGE 1 & 2: Controlled, deliberate hit shaking + red tint pulsing */
+        .shake-pulse-slow {
+            animation: slowShake 0.1s infinite alternate, redPulse 0.3s infinite ease-in-out;
+        }
+
+        /* STAGE 3: High-velocity structural panic shake + deeper red flash */
+        .shake-pulse-rapid {
+            animation: rapidShake 0.04s infinite alternate, redPulseIntensity 0.1s infinite ease-in-out;
+        }
+
+        /* Dynamic toggle to pause soul-spinning mechanics on click */
+        .paused-animation {
+            animation-play-state: paused !important;
+        }
+
+        /* Animation Math Keyframes */
+        @keyframes slowShake {
+            0% { transform: translate(2px, 1px) rotate(0deg); }
+            100% { transform: translate(-2px, -1px) rotate(-1deg); }
+        }
+
+        @keyframes rapidShake {
+            0% { transform: translate(5px, -3px) rotate(-2deg); }
+            100% { transform: translate(-5px, 3px) rotate(2deg); }
+        }
+
+        @keyframes redPulse {
+            0%, 100% { filter: drop-shadow(0 0 0px rgba(255,0,0,0)) sepia(0) saturate(1) hue-rotate(0deg); }
+            50% { filter: drop-shadow(0 0 15px #ff0000) sepia(1) saturate(5) hue-rotate(-50deg); }
+        }
+
+        @keyframes redPulseIntensity {
+            0%, 100% { filter: drop-shadow(0 0 5px #ff0000) sepia(0.8) saturate(4); }
+            50% { filter: drop-shadow(0 0 30px #ff0000) sepia(1) saturate(20) brightness(0.6); }
+        }
+
+        /* Soul Rings Configurations */
         .soul-ring {
             position: absolute;
             width: 0;
@@ -50,23 +90,11 @@
             transform-origin: center center; 
         }
 
-        .spin-clockwise {
-            animation: spinCW 25s infinite linear;
-        }
+        .spin-clockwise { animation: spinCW 25s infinite linear; }
+        .spin-counterclockwise { animation: spinCCW 25s infinite linear; }
 
-        .spin-counterclockwise {
-            animation: spinCCW 25s infinite linear;
-        }
-
-        @keyframes spinCW {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        @keyframes spinCCW {
-            from { transform: rotate(360deg); }
-            to { transform: rotate(0deg); }
-        }
+        @keyframes spinCW { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes spinCCW { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
     </style>
 </head>
 <body>
@@ -76,29 +104,22 @@
     </div>
 
     <script>
-        /*
-          FIXED PATHING LOGIC FOR GITHUB PAGES:
-          1. Detect the repository name from the URL path (e.g., "/repo-name/Help/").
-          2. Extract just the first folder name, which is your repository name.
-          3. Build an absolute root URL so it always points to "https://github.io".
-        */
-        const currentPath = window.location.pathname; // e.g. "/repo-name/Help/"
+        // Resolve dynamic paths for GitHub subfolders flawlessly
+        const currentPath = window.location.pathname;
         const pathSegments = currentPath.split('/').filter(segment => segment.length > 0);
         const repoName = pathSegments[0] || ''; 
-        
-        // Construct the clean base path
         const repoBasePath = window.location.origin + '/' + repoName + '/';
 
-        // Absolute target URLs pointing directly back to your root folders
-        // CRITICAL NOTE: If your folder on GitHub is lowercase "assets", change "Assets/" below to "assets/"
-        const playerAssetUrl = repoBasePath + 'Assets/Kris_Idle.png';
+        // Preloading all structural player states to eliminate any loading delays on click
+        const krisIdleUrl = repoBasePath + 'Assets/Kris_Idle.png';
+        const krisDownUrl = repoBasePath + 'Assets/Kris_Down.png';
         const soulAssetUrl = repoBasePath + 'Assets/Soul.png';
 
-        // Apply fixed URL to the central player
-        document.getElementById('player-img').src = playerAssetUrl;
+        const playerElement = document.getElementById('player-img');
+        playerElement.src = krisIdleUrl;
 
+        // Populate Soul Rings
         const container = document.getElementById('scene-container');
-        
         const ringSettings = [
             { radius: 130, count: 12 }, 
             { radius: 220, count: 20 }, 
@@ -108,32 +129,67 @@
 
         ringSettings.forEach((ring, ringIndex) => {
             const ringElement = document.createElement('div');
-            ringElement.classList.add('soul-ring');
-            
-            if (ringIndex % 2 === 0) {
-                ringElement.classList.add('spin-clockwise');
-            } else {
-                ringElement.classList.add('spin-counterclockwise');
-            }
+            ringElement.classList.add('soul-ring', 'ring-layer');
+            ringElement.classList.add(ringIndex % 2 === 0 ? 'spin-clockwise' : 'spin-counterclockwise');
 
             for (let i = 0; i < ring.count; i++) {
                 const soul = document.createElement('img');
                 soul.src = soulAssetUrl; 
                 soul.classList.add('soul-sprite');
-
                 const angleDegree = (i / ring.count) * 360;
                 const angleRad = (angleDegree * Math.PI) / 180;
-
                 const x = Math.cos(angleRad) * ring.radius;
                 const y = Math.sin(angleRad) * ring.radius;
-
                 const targetFacingRotation = angleDegree + 270;
 
                 soul.style.transform = `translate(${x}px, ${y}px) rotate(${targetFacingRotation}deg)`;
                 ringElement.appendChild(soul);
             }
-
             container.appendChild(ringElement);
+        });
+
+        // --- CUTSCENE CLICK EVENT ENGINE ---
+        let isPlayingSequence = false;
+
+        playerElement.addEventListener('click', () => {
+            // Guard clause to prevent spamming clicks during active animation sequences
+            if (isPlayingSequence) return;
+            isPlayingSequence = true;
+
+            // Step A: Pause the rotation engine of all external soul rings
+            document.querySelectorAll('.ring-layer').forEach(ring => {
+                ring.classList.add('paused-animation');
+            });
+
+            // Stage 1: Initial Shaking and Red Pulsing (Duration: 1.0 Second)
+            playerElement.classList.add('shake-pulse-slow');
+
+            setTimeout(() => {
+                // Step B: Stop shaking temporarily for 0.5 seconds (leaving red pulse resting)
+                playerElement.classList.remove('shake-pulse-slow');
+                
+                setTimeout(() => {
+                    // Stage 3: Intense, high-velocity panic shaking and deep red flash (Duration: 0.5 Seconds)
+                    playerElement.classList.add('shake-pulse-rapid');
+
+                    setTimeout(() => {
+                        // Step C: Terminate all active animation sequences and swap target asset asset paths
+                        playerElement.classList.remove('shake-pulse-rapid');
+                        playerElement.src = krisDownUrl; // Changes to down state image
+                        
+                        // Optional: Resume soul rotation engines after the transformation finishes
+                        document.querySelectorAll('.ring-layer').forEach(ring => {
+                            ring.classList.remove('paused-animation');
+                        });
+                        
+                        // Keeps sequence locked or lets user re-trigger later depending on preference
+                        // isPlayingSequence = false; 
+
+                    }, 500); // 0.5 Seconds End stage
+
+                }, 500); // 0.5 Seconds Static delay gap (Stage 2)
+
+            }, 1000); // 1.0 Second Initial duration (Stage 1)
         });
     </script>
 
