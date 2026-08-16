@@ -95,10 +95,18 @@
                 const cleanValue = inputField.value.trim().toLowerCase();
                 
                 if (cleanValue === 'fountain') {
-                    // Redirects to your Egg room page
                     window.location.href = 'Egg'; 
+                } else if (cleanValue === 'help') {
+                    window.location.href = 'Help';
+                } else if (cleanValue === 'pawn') {
+                    window.location.href = 'Pawn';
+                } else if (cleanValue === 'cat') {
+                    window.location.href = 'Cat';
+                } else if (cleanValue === 'weird') {
+                    window.location.href = 'Weird';
+                } else if (cleanValue === 'sword') {
+                    window.location.href = 'Sword';
                 } else if (cleanValue === 'reset') {
-                    // Clears all items and memory entirely
                     localStorage.clear();
                     alert("Game Memory Cleared.");
                     inputField.value = '';
