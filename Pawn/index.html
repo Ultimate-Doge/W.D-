@@ -1,230 +1,290 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Surrounded</title>
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #000000;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Kris Soul Orbit</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    html, body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: black;
+    }
+
+    #scene {
+        position: fixed;
+        inset: 0;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #center {
+        position: relative;
+
+        width: min(100vw, 100vh);
+        height: min(100vw, 100vh);
+    }
+
+    /* Kris */
+    #kris {
+        position: absolute;
+
+        left: 50%;
+        top: 50%;
+
+        width: 180px;
+        height: 180px;
+
+        transform: translate(-50%, -50%);
+
+        object-fit: contain;
+
+        image-rendering: pixelated;
+
+        z-index: 1000;
+    }
+
+    /* Rotating rings */
+    .layer {
+        position: absolute;
+
+        left: 50%;
+        top: 50%;
+
+        width: 0;
+        height: 0;
+
+        transform-origin: center;
+    }
+
+    /* Soul images */
+    .soul {
+        position: absolute;
+
+        left: 0;
+        top: 0;
+
+        width: 45px;
+        height: 45px;
+
+        object-fit: contain;
+
+        image-rendering: pixelated;
+
+        transform-origin: center;
+    }
+
+    /* Clockwise */
+    .clockwise {
+        animation:
+            spinClockwise var(--speed) linear infinite;
+    }
+
+    /* Counter-clockwise */
+    .counterclockwise {
+        animation:
+            spinCounterClockwise var(--speed) linear infinite;
+    }
+
+    @keyframes spinClockwise {
+
+        from {
+            transform: rotate(0deg);
         }
 
-        #scene-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        to {
+            transform: rotate(360deg);
         }
 
-        .player-sprite {
-            position: absolute;
-            z-index: 10;
-            max-height: 120px; 
-            image-rendering: pixelated;
-            cursor: pointer;
-            transform: translateX(0);
+    }
+
+    @keyframes spinCounterClockwise {
+
+        from {
+            transform: rotate(360deg);
         }
 
-        .shake-slow-sync {
-            animation: deltaruneSlow 0.6s infinite steps(1);
+        to {
+            transform: rotate(0deg);
         }
 
-        .pause-glow-sync {
-            filter: drop-shadow(0 0 15px #ff0000) url('data:image/svg+xml;utf8,<svg xmlns="http://w3.org"><filter id="red"><feColorMatrix type="matrix" values="1 1 1 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"/></filter></svg>#red') !important;
-        }
+    }
 
-        .shake-rapid-sync {
-            animation: deltaruneRapid 0.2s infinite steps(1);
-        }
-
-        @keyframes deltaruneSlow {
-            0%, 24% { transform: translateX(0); filter: none; }
-            25%, 74% { transform: translateX(-8px); filter: drop-shadow(0 0 15px #ff0000) url('data:image/svg+xml;utf8,<svg xmlns="http://w3.org"><filter id="red"><feColorMatrix type="matrix" values="1 1 1 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"/></filter></svg>#red'); }
-            75%, 100% { transform: translateX(0); filter: none; }
-        }
-
-        @keyframes deltaruneRapid {
-            0%, 24% { transform: translateX(-10px); filter: none; }
-            25%, 74% { transform: translateX(10px); filter: drop-shadow(0 0 25px #ff0000) url('data:image/svg+xml;utf8,<svg xmlns="http://w3.org"><filter id="red"><feColorMatrix type="matrix" values="1 1 1 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"/></filter></svg>#red'); }
-            75%, 100% { transform: translateX(-10px); filter: none; }
-        }
-
-        .soul-ring {
-            position: absolute;
-            width: 0;
-            height: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .soul-sprite {
-            position: absolute;
-            width: 24px; 
-            height: 24px;
-            image-rendering: pixelated;
-            transform-origin: center center; 
-        }
-
-        .spin-clockwise { animation: spinCW 25s infinite linear; }
-        .spin-counterclockwise { animation: spinCCW 25s infinite linear; }
-
-        @keyframes spinCW { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes spinCCW { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
-
-        /* FIXED: Added strict positioning properties to keep it perfectly centered over Kris */
-        .launched-soul {
-            position: absolute;
-            z-index: 100;
-            width: 24px;
-            height: 24px;
-            left: 50%;
-            top: 50%;
-            margin-left: -12px;
-            margin-top: -12px;
-            image-rendering: pixelated;
-            display: none;
-            transform: scale(1);
-        }
-
-        /* Adjusted zoom to 0.9s so it is clearly tracked by the player's eyes */
-        .soul-zoom-animation {
-            display: block;
-            animation: zoomTowardsScreen 0.9s forwards cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        @keyframes zoomTowardsScreen {
-            0% { transform: scale(1); opacity: 1; }
-            70% { transform: scale(35); opacity: 1; }
-            100% { transform: scale(90); opacity: 0; }
-        }
-
-        .damage-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: #ff0000;
-            z-index: 200;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .screen-flash-animation {
-            animation: redDamageFlash 0.5s forwards ease-out;
-        }
-
-        @keyframes redDamageFlash {
-            0% { opacity: 1; }
-            20% { opacity: 1; }
-            100% { opacity: 0; }
-        }
-    </style>
+</style>
 </head>
+
 <body>
 
-    <div id="scene-container">
-        <img id="player-img" alt="Kris" class="player-sprite">
-        <img id="launched-soul-img" alt="Soul" class="launched-soul">
-        <div id="flash-overlay" class="damage-overlay"></div>
+<div id="scene">
+
+    <div id="center">
+
+        <!-- Kris in the middle -->
+        <img
+            id="kris"
+            src="../Assets/Kris_Idle.png"
+        >
+
     </div>
 
-    <script>
-        const pathSegments = window.location.pathname.split('/').filter(s => s.length > 0);
-        let repoBasePath = window.location.origin + '/';
-        
-        if (pathSegments.length > 0) {
-            repoBasePath += pathSegments + '/';
-        }
+</div>
 
-        const krisIdleUrl = repoBasePath + 'Assets/Kris_Idle.png';
-        const krisDownUrl = repoBasePath + 'Assets/Kris_Down.png';
-        const soulAssetUrl = repoBasePath + 'Assets/Soul.png';
 
-        const playerElement = document.getElementById('player-img');
-        const launchedSoulElement = document.getElementById('launched-soul-img');
-        const flashOverlayElement = document.getElementById('flash-overlay');
+<script>
 
-        playerElement.src = krisIdleUrl;
-        launchedSoulElement.src = soulAssetUrl;
+//
+// SETTINGS
+//
 
-        const container = document.getElementById('scene-container');
-        const ringSettings = [
-            { radius: 130, count: 12 }, 
-            { radius: 220, count: 20 }, 
-            { radius: 310, count: 28 }, 
-            { radius: 400, count: 36 }  
-        ];
+// Number of rings around Kris
+const NUMBER_OF_LAYERS = 5;
 
-        ringSettings.forEach((ring, ringIndex) => {
-            const ringElement = document.createElement('div');
-            ringElement.classList.add('soul-ring');
-            ringElement.classList.add(ringIndex % 2 === 0 ? 'spin-clockwise' : 'spin-counterclockwise');
+// Souls on each ring
+const SOULS_PER_LAYER = 8;
 
-            for (let i = 0; i < ring.count; i++) {
-                const soul = document.createElement('img');
-                soul.src = soulAssetUrl; 
-                soul.classList.add('soul-sprite');
-                const angleDegree = (i / ring.count) * 360;
-                const angleRad = (angleDegree * Math.PI) / 180;
-                const x = Math.cos(angleRad) * ring.radius;
-                const y = Math.sin(angleRad) * ring.radius;
-                const targetFacingRotation = angleDegree + 270;
+// Distance of the first ring from Kris
+const START_RADIUS = 150;
 
-                soul.style.transform = `translate(${x}px, ${y}px) rotate(${targetFacingRotation}deg)`;
-                ringElement.appendChild(soul);
-            }
-            container.appendChild(ringElement);
-        });
+// Distance between rings
+const LAYER_DISTANCE = 85;
 
-        let isPlayingSequence = false;
+// Size of Soul.png
+const SOUL_SIZE = 45;
 
-        playerElement.addEventListener('click', () => {
-            if (isPlayingSequence) return;
-            isPlayingSequence = true;
+// Speed of the first ring
+const BASE_SPEED = 12;
 
-            playerElement.classList.add('shake-slow-sync');
 
-            setTimeout(() => {
-                playerElement.classList.remove('shake-slow-sync');
-                playerElement.classList.add('pause-glow-sync');
+// Kris container
+const center = document.getElementById("center");
 
-                setTimeout(() => {
-                    playerElement.classList.remove('pause-glow-sync');
-                    playerElement.classList.add('shake-rapid-sync');
 
-                    setTimeout(() => {
-                        playerElement.classList.remove('shake-rapid-sync');
-                        
-                        // 1. Immediately swaps the sprite to Kris_Down
-                        playerElement.src = krisDownUrl; 
+// Create every layer
+for (let layerNumber = 0; layerNumber < NUMBER_OF_LAYERS; layerNumber++) {
 
-                        // 2. Launch the heart directly out from center screen coordinates
-                        launchedSoulElement.classList.add('soul-zoom-animation');
+    const layer = document.createElement("div");
 
-                        // 3. Trigger the fullscreen red flash exactly as the heart expands over the frame (at 0.7s)
-                        setTimeout(() => {
-                            flashOverlayElement.classList.add('screen-flash-animation');
-                        }, 700);
+    layer.classList.add("layer");
 
-                    }, 500);
 
-                }, 500);
+    //
+    // Alternate directions
+    //
+    if (layerNumber % 2 === 0) {
 
-            }, 1000);
-        });
-    </script>
+        // Layer 1, 3, 5...
+        layer.classList.add("clockwise");
+
+    } else {
+
+        // Layer 2, 4...
+        layer.classList.add("counterclockwise");
+
+    }
+
+
+    //
+    // Speed
+    //
+    const speed =
+        BASE_SPEED +
+        (layerNumber * 3);
+
+    layer.style.setProperty(
+        "--speed",
+        speed + "s"
+    );
+
+
+    //
+    // Radius
+    //
+    const radius =
+        START_RADIUS +
+        (layerNumber * LAYER_DISTANCE);
+
+
+    //
+    // Create Souls
+    //
+    for (
+        let soulNumber = 0;
+        soulNumber < SOULS_PER_LAYER;
+        soulNumber++
+    ) {
+
+        const soul = document.createElement("img");
+
+        soul.classList.add("soul");
+
+        soul.src = "../Assets/Soul.png";
+
+
+        //
+        // Spread Souls evenly around the circle
+        //
+        const angle =
+            (soulNumber / SOULS_PER_LAYER) * 360;
+
+
+        //
+        // Convert degrees to radians
+        //
+        const radians =
+            angle * Math.PI / 180;
+
+
+        //
+        // Calculate position
+        //
+        const x =
+            Math.cos(radians) * radius;
+
+
+        const y =
+            Math.sin(radians) * radius;
+
+
+        //
+        // Make Soul point toward Kris
+        //
+        const facingAngle =
+            angle + 90;
+
+
+        soul.style.width = SOUL_SIZE + "px";
+        soul.style.height = SOUL_SIZE + "px";
+
+
+        soul.style.transform =
+            `translate(-50%, -50%)
+             translate(${x}px, ${y}px)
+             rotate(${facingAngle}deg)`;
+
+
+        layer.appendChild(soul);
+
+    }
+
+
+    //
+    // Add layer to Kris' container
+    //
+    center.appendChild(layer);
+
+}
+
+</script>
 
 </body>
 </html>
