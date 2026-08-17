@@ -4,11 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Kris Soul Orbit</title>
+<title>The pawn on the chess board...</title>
 
 <style>
     * {
         box-sizing: border-box;
+        user-select: none;
+        -webkit-user-select: none;
     }
 
     html, body {
@@ -16,8 +18,46 @@
         width: 100%;
         height: 100%;
         overflow: hidden;
-        background: black;
+        background: #000;
     }
+
+    body {
+        font-family: Arial, sans-serif;
+    }
+
+    /* =========================
+       TITLE
+    ========================= */
+
+    #title {
+        position: fixed;
+
+        top: 30px;
+        left: 0;
+        width: 100%;
+
+        text-align: center;
+
+        color: white;
+
+        font-size: clamp(22px, 4vw, 42px);
+        font-weight: bold;
+
+        z-index: 5000;
+
+        pointer-events: none;
+
+        text-shadow:
+            2px 2px 0 #000,
+            -2px -2px 0 #000,
+            2px -2px 0 #000,
+            -2px 2px 0 #000;
+    }
+
+
+    /* =========================
+       MAIN SCENE
+    ========================= */
 
     #scene {
         position: fixed;
@@ -26,7 +66,10 @@
         display: flex;
         justify-content: center;
         align-items: center;
+
+        background: #000;
     }
+
 
     #center {
         position: relative;
@@ -35,7 +78,11 @@
         height: min(100vw, 100vh);
     }
 
-    /* Kris */
+
+    /* =========================
+       KRIS
+    ========================= */
+
     #kris {
         position: absolute;
 
@@ -52,9 +99,17 @@
         image-rendering: pixelated;
 
         z-index: 1000;
+
+        cursor: pointer;
+
+        transition: filter 0.05s;
     }
 
-    /* Rotating rings */
+
+    /* =========================
+       SOUL RINGS
+    ========================= */
+
     .layer {
         position: absolute;
 
@@ -65,9 +120,11 @@
         height: 0;
 
         transform-origin: center;
+
+        pointer-events: none;
     }
 
-    /* Soul images */
+
     .soul {
         position: absolute;
 
@@ -80,21 +137,20 @@
         object-fit: contain;
 
         image-rendering: pixelated;
-
-        transform-origin: center;
     }
 
-    /* Clockwise */
+
     .clockwise {
         animation:
             spinClockwise var(--speed) linear infinite;
     }
 
-    /* Counter-clockwise */
+
     .counterclockwise {
         animation:
             spinCounterClockwise var(--speed) linear infinite;
     }
+
 
     @keyframes spinClockwise {
 
@@ -108,6 +164,7 @@
 
     }
 
+
     @keyframes spinCounterClockwise {
 
         from {
@@ -120,19 +177,264 @@
 
     }
 
+
+    /* =========================
+       KRIS SHAKE
+    ========================= */
+
+    #kris.shaking {
+        animation: krisShake 0.08s infinite;
+    }
+
+
+    @keyframes krisShake {
+
+        0% {
+            transform:
+                translate(-50%, -50%)
+                translate(0px, 0px)
+                rotate(0deg);
+        }
+
+        20% {
+            transform:
+                translate(-50%, -50%)
+                translate(-5px, 2px)
+                rotate(-2deg);
+        }
+
+        40% {
+            transform:
+                translate(-50%, -50%)
+                translate(5px, -2px)
+                rotate(2deg);
+        }
+
+        60% {
+            transform:
+                translate(-50%, -50%)
+                translate(-4px, -2px)
+                rotate(-1deg);
+        }
+
+        80% {
+            transform:
+                translate(-50%, -50%)
+                translate(4px, 2px)
+                rotate(1deg);
+        }
+
+        100% {
+            transform:
+                translate(-50%, -50%)
+                translate(0px, 0px)
+                rotate(0deg);
+        }
+
+    }
+
+
+    /* =========================
+       RED FLASH
+    ========================= */
+
+    #redFlash {
+        position: fixed;
+        inset: 0;
+
+        background: red;
+
+        opacity: 0;
+
+        pointer-events: none;
+
+        z-index: 4000;
+    }
+
+
+    #redFlash.active {
+        animation: redFlashAnimation 0.12s infinite;
+    }
+
+
+    @keyframes redFlashAnimation {
+
+        0% {
+            opacity: 0;
+        }
+
+        50% {
+            opacity: 0.45;
+        }
+
+        100% {
+            opacity: 0;
+        }
+
+    }
+
+
+    /* =========================
+       FLYING SOUL
+    ========================= */
+
+    #flyingSoul {
+        position: fixed;
+
+        left: 50%;
+        top: 50%;
+
+        width: 55px;
+        height: 55px;
+
+        object-fit: contain;
+
+        image-rendering: pixelated;
+
+        transform:
+            translate(-50%, -50%)
+            scale(1);
+
+        opacity: 0;
+
+        z-index: 3000;
+
+        pointer-events: none;
+    }
+
+
+    #flyingSoul.fly {
+        animation: soulFly 1.5s cubic-bezier(0.15, 0.7, 0.1, 1) forwards;
+    }
+
+
+    @keyframes soulFly {
+
+        0% {
+            left: 50%;
+            top: 50%;
+
+            transform:
+                translate(-50%, -50%)
+                scale(1);
+
+            opacity: 1;
+        }
+
+        35% {
+            transform:
+                translate(-50%, -50%)
+                scale(1.5);
+        }
+
+        70% {
+            transform:
+                translate(-50%, -50%)
+                scale(4);
+        }
+
+        100% {
+            left: 50%;
+            top: 50%;
+
+            transform:
+                translate(-50%, -50%)
+                scale(30);
+
+            opacity: 1;
+        }
+
+    }
+
+
+    /* =========================
+       ABSORB FLASH
+    ========================= */
+
+    #absorbFlash {
+        position: fixed;
+        inset: 0;
+
+        background: white;
+
+        opacity: 0;
+
+        pointer-events: none;
+
+        z-index: 6000;
+    }
+
+
+    #absorbFlash.active {
+        animation: absorbAnimation 0.45s ease-out forwards;
+    }
+
+
+    @keyframes absorbAnimation {
+
+        0% {
+            opacity: 0;
+        }
+
+        20% {
+            opacity: 1;
+        }
+
+        100% {
+            opacity: 0;
+        }
+
+    }
+
+
+    /* =========================
+       FADE AFTER EFFECT
+    ========================= */
+
+    #blackout {
+        position: fixed;
+        inset: 0;
+
+        background: black;
+
+        opacity: 0;
+
+        pointer-events: none;
+
+        z-index: 5500;
+
+        transition: opacity 0.5s;
+    }
+
+
+    #blackout.active {
+        opacity: 1;
+    }
+
 </style>
 </head>
 
+
 <body>
+
+<!-- TITLE -->
+
+<div id="title">
+    The pawn on the chess board...
+</div>
+
+
+<!-- SCENE -->
 
 <div id="scene">
 
     <div id="center">
 
-        <!-- Kris in the middle -->
+        <!-- Kris -->
         <img
             id="kris"
             src="../Assets/Kris_Idle.png"
+            alt="Kris"
         >
 
     </div>
@@ -140,65 +442,99 @@
 </div>
 
 
+<!-- Effects -->
+
+<div id="redFlash"></div>
+
+<img
+    id="flyingSoul"
+    src="../Assets/Soul.png"
+    alt=""
+>
+
+<div id="blackout"></div>
+
+<div id="absorbFlash"></div>
+
+
 <script>
 
-//
-// SETTINGS
-//
+/* =========================================
+   SETTINGS
+========================================= */
 
-// Number of rings around Kris
 const NUMBER_OF_LAYERS = 5;
 
-// Souls on each ring
 const SOULS_PER_LAYER = 8;
 
-// Distance of the first ring from Kris
 const START_RADIUS = 150;
 
-// Distance between rings
 const LAYER_DISTANCE = 85;
 
-// Size of Soul.png
 const SOUL_SIZE = 45;
 
-// Speed of the first ring
 const BASE_SPEED = 12;
 
 
-// Kris container
-const center = document.getElementById("center");
+/* =========================================
+   ELEMENTS
+========================================= */
+
+const center =
+    document.getElementById("center");
+
+const kris =
+    document.getElementById("kris");
+
+const redFlash =
+    document.getElementById("redFlash");
+
+const flyingSoul =
+    document.getElementById("flyingSoul");
+
+const absorbFlash =
+    document.getElementById("absorbFlash");
+
+const blackout =
+    document.getElementById("blackout");
 
 
-// Create every layer
-for (let layerNumber = 0; layerNumber < NUMBER_OF_LAYERS; layerNumber++) {
+/* =========================================
+   CREATE SOUL RINGS
+========================================= */
 
-    const layer = document.createElement("div");
+for (
+    let layerNumber = 0;
+    layerNumber < NUMBER_OF_LAYERS;
+    layerNumber++
+) {
+
+    const layer =
+        document.createElement("div");
+
 
     layer.classList.add("layer");
 
 
-    //
-    // Alternate directions
-    //
+    /* Alternate directions */
+
     if (layerNumber % 2 === 0) {
 
-        // Layer 1, 3, 5...
         layer.classList.add("clockwise");
 
     } else {
 
-        // Layer 2, 4...
         layer.classList.add("counterclockwise");
 
     }
 
 
-    //
-    // Speed
-    //
+    /* Different speed per layer */
+
     const speed =
         BASE_SPEED +
         (layerNumber * 3);
+
 
     layer.style.setProperty(
         "--speed",
@@ -206,47 +542,50 @@ for (let layerNumber = 0; layerNumber < NUMBER_OF_LAYERS; layerNumber++) {
     );
 
 
-    //
-    // Radius
-    //
+    /* Radius */
+
     const radius =
         START_RADIUS +
         (layerNumber * LAYER_DISTANCE);
 
 
-    //
-    // Create Souls
-    //
+    /* Create Souls */
+
     for (
         let soulNumber = 0;
         soulNumber < SOULS_PER_LAYER;
         soulNumber++
     ) {
 
-        const soul = document.createElement("img");
+        const soul =
+            document.createElement("img");
+
 
         soul.classList.add("soul");
 
-        soul.src = "../Assets/Soul.png";
+
+        soul.src =
+            "../Assets/Soul.png";
 
 
-        //
-        // Spread Souls evenly around the circle
-        //
+        soul.style.width =
+            SOUL_SIZE + "px";
+
+
+        soul.style.height =
+            SOUL_SIZE + "px";
+
+
+        /* Position around circle */
+
         const angle =
             (soulNumber / SOULS_PER_LAYER) * 360;
 
 
-        //
-        // Convert degrees to radians
-        //
         const radians =
             angle * Math.PI / 180;
 
 
-        //
-        // Calculate position
-        //
         const x =
             Math.cos(radians) * radius;
 
@@ -255,21 +594,15 @@ for (let layerNumber = 0; layerNumber < NUMBER_OF_LAYERS; layerNumber++) {
             Math.sin(radians) * radius;
 
 
-        //
-        // Make Soul point toward Kris
-        //
-        const facingAngle =
-            angle + 90;
-
-
-        soul.style.width = SOUL_SIZE + "px";
-        soul.style.height = SOUL_SIZE + "px";
-
+        /*
+            Make the Soul point toward
+            the centre.
+        */
 
         soul.style.transform =
             `translate(-50%, -50%)
              translate(${x}px, ${y}px)
-             rotate(${facingAngle}deg)`;
+             rotate(${angle + 90}deg)`;
 
 
         layer.appendChild(soul);
@@ -277,10 +610,126 @@ for (let layerNumber = 0; layerNumber < NUMBER_OF_LAYERS; layerNumber++) {
     }
 
 
-    //
-    // Add layer to Kris' container
-    //
     center.appendChild(layer);
+
+}
+
+
+/* =========================================
+   CLICK KRIS
+========================================= */
+
+let activated = false;
+
+
+kris.addEventListener("click", activate);
+
+
+kris.addEventListener("touchstart", function(event) {
+
+    event.preventDefault();
+
+    activate();
+
+});
+
+
+function activate() {
+
+    /*
+        Prevent the sequence from being
+        triggered multiple times.
+    */
+
+    if (activated)
+        return;
+
+    activated = true;
+
+
+    /* =====================================
+       PHASE 1 — SHAKE + RED FLASH
+    ===================================== */
+
+    kris.classList.add("shaking");
+
+    redFlash.classList.add("active");
+
+
+    /*
+        Disable the surrounding rings
+        during the sequence.
+    */
+
+    document
+        .querySelectorAll(".layer")
+        .forEach(layer => {
+
+            layer.style.animationPlayState =
+                "paused";
+
+        });
+
+
+    /* =====================================
+       PHASE 2 — KRIS CHANGES
+    ===================================== */
+
+    setTimeout(() => {
+
+        kris.classList.remove("shaking");
+
+        redFlash.classList.remove("active");
+
+
+        /*
+            Change Kris to the downward
+            pose.
+        */
+
+        kris.src =
+            "../Assets/Kris_Down.png";
+
+
+    }, 1000);
+
+
+    /* =====================================
+       PHASE 3 — SPAWN SOUL
+    ===================================== */
+
+    setTimeout(() => {
+
+        flyingSoul.classList.add("fly");
+
+    }, 1300);
+
+
+    /* =====================================
+       PHASE 4 — SOUL REACHES SCREEN
+    ===================================== */
+
+    setTimeout(() => {
+
+        /*
+            White flash across the entire
+            screen.
+        */
+
+        absorbFlash.classList.add("active");
+
+    }, 2750);
+
+
+    /* =====================================
+       PHASE 5 — FINISH
+    ===================================== */
+
+    setTimeout(() => {
+
+        blackout.classList.add("active");
+
+    }, 3300);
 
 }
 
